@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, Link } from 'react-router-dom';
 import { 
   Paper, 
   TextField, 
@@ -7,8 +7,19 @@ import {
   Typography,
   Box,
   Alert,
-  CircularProgress
+  CircularProgress,
+  Stack,
+  InputAdornment,
+  Fade
 } from '@mui/material';
+import { 
+  Edit as EditIcon,
+  Title as TitleIcon,
+  Person as PersonIcon,
+  AttachMoney as AttachMoneyIcon,
+  ArrowBack as ArrowBackIcon,
+  Save as SaveIcon
+} from '@mui/icons-material';
 import { getBook, updateBook } from '../api';
 
 function EditBook() {
@@ -21,6 +32,7 @@ function EditBook() {
     price: ''
   });
   const [error, setError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     const fetchBook = async () => {
@@ -31,8 +43,9 @@ function EditBook() {
           author: response.data.author,
           price: response.data.price.toString()
         });
+        setError('');
       } catch (error) {
-        setError('Error fetching book details');
+        setError('Error fetching book details. Please try again.');
       } finally {
         setLoading(false);
       }
@@ -47,10 +60,12 @@ function EditBook() {
       ...prev,
       [name]: value
     }));
+    setError(''); // Clear error when user makes changes
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsSubmitting(true);
     try {
       const bookData = {
         ...formData,
@@ -61,79 +76,158 @@ function EditBook() {
       navigate('/');
     } catch (error) {
       setError(error.response?.data?.error || 'An error occurred while updating the book');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   if (loading) {
     return (
-      <Box display="flex" justifyContent="center" alignItems="center" minHeight="200px">
+      <Box display="flex" justifyContent="center" alignItems="center" minHeight="60vh">
         <CircularProgress />
       </Box>
     );
   }
 
   return (
-    <Paper elevation={3} sx={{ p: 3, maxWidth: 500, mx: 'auto' }}>
-      <Typography variant="h5" gutterBottom>
-        Edit Book
-      </Typography>
+    <Fade in timeout={500}>
+      <Box maxWidth={600} mx="auto">
+        <Button
+          component={Link}
+          to="/"
+          startIcon={<ArrowBackIcon />}
+          sx={{ mb: 4 }}
+        >
+          Back to Books
+        </Button>
 
-      {error && (
-        <Alert severity="error" sx={{ mb: 2 }}>
-          {error}
-        </Alert>
-      )}
+        <Paper 
+          elevation={0} 
+          sx={{ 
+            p: 4,
+            borderRadius: 2,
+            bgcolor: 'background.paper',
+            border: '1px solid',
+            borderColor: 'divider',
+          }}
+        >
+          <Box sx={{ mb: 4, textAlign: 'center' }}>
+            <EditIcon 
+              sx={{ 
+                fontSize: 48, 
+                color: 'primary.main',
+                mb: 2
+              }} 
+            />
+            <Typography variant="h4" component="h1" gutterBottom fontWeight="bold">
+              Edit Book
+            </Typography>
+            <Typography variant="body1" color="text.secondary">
+              Update the details of your book
+            </Typography>
+          </Box>
 
-      <Box component="form" onSubmit={handleSubmit}>
-        <TextField
-          fullWidth
-          label="Title"
-          name="title"
-          value={formData.title}
-          onChange={handleChange}
-          margin="normal"
-          required
-        />
-        <TextField
-          fullWidth
-          label="Author"
-          name="author"
-          value={formData.author}
-          onChange={handleChange}
-          margin="normal"
-          required
-        />
-        <TextField
-          fullWidth
-          label="Price"
-          name="price"
-          type="number"
-          value={formData.price}
-          onChange={handleChange}
-          margin="normal"
-          required
-          inputProps={{ min: 0, step: "0.01" }}
-        />
-        <Box sx={{ mt: 2, display: 'flex', gap: 2 }}>
-          <Button 
-            type="submit" 
-            variant="contained" 
-            color="primary"
-            fullWidth
-          >
-            Update Book
-          </Button>
-          <Button 
-            variant="outlined" 
-            color="secondary"
-            fullWidth
-            onClick={() => navigate('/')}
-          >
-            Cancel
-          </Button>
-        </Box>
+          {error && (
+            <Alert 
+              severity="error" 
+              sx={{ 
+                mb: 3,
+                borderRadius: 2,
+              }}
+            >
+              {error}
+            </Alert>
+          )}
+
+          <Box component="form" onSubmit={handleSubmit}>
+            <Stack spacing={3}>
+              <TextField
+                fullWidth
+                label="Book Title"
+                name="title"
+                value={formData.title}
+                onChange={handleChange}
+                required
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <TitleIcon color="action" />
+                    </InputAdornment>
+                  ),
+                }}
+              />
+              <TextField
+                fullWidth
+                label="Author Name"
+                name="author"
+                value={formData.author}
+                onChange={handleChange}
+                required
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <PersonIcon color="action" />
+                    </InputAdornment>
+                  ),
+                }}
+              />
+              <TextField
+                fullWidth
+                label="Price"
+                name="price"
+                type="number"
+                value={formData.price}
+                onChange={handleChange}
+                required
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <AttachMoneyIcon color="action" />
+                    </InputAdornment>
+                  ),
+                }}
+                inputProps={{ 
+                  min: 0, 
+                  step: "0.01",
+                  inputMode: 'decimal'
+                }}
+              />
+
+              <Stack direction="row" spacing={2} sx={{ mt: 2 }}>
+                <Button 
+                  type="submit" 
+                  variant="contained" 
+                  color="primary"
+                  size="large"
+                  fullWidth
+                  disabled={isSubmitting}
+                  startIcon={<SaveIcon />}
+                  sx={{ 
+                    py: 1.5,
+                    fontSize: '1.1rem',
+                  }}
+                >
+                  {isSubmitting ? 'Saving Changes...' : 'Save Changes'}
+                </Button>
+                <Button 
+                  variant="outlined" 
+                  color="secondary"
+                  size="large"
+                  fullWidth
+                  onClick={() => navigate('/')}
+                  sx={{ 
+                    py: 1.5,
+                    fontSize: '1.1rem',
+                  }}
+                >
+                  Cancel
+                </Button>
+              </Stack>
+            </Stack>
+          </Box>
+        </Paper>
       </Box>
-    </Paper>
+    </Fade>
   );
 }
 
