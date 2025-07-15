@@ -1,10 +1,18 @@
 const express = require('express');
+const cors = require('cors');
+const path = require('path');
+
 const app = express();
-const port = 3001;
-app.use(express.json()); // Middleware to parse JSON request bodies
-app.listen(port, () => {
-    console.log(`Server running on http://localhost:${port}`);
-});
+const port = process.env.PORT || 3001;
+
+// Middleware
+app.use(cors());
+app.use(express.json());
+
+// Serve static files from the React app
+app.use(express.static(path.join(__dirname, 'client/dist')));
+
+// API routes
 const books = [];
 let nextId = 1; // Counter for generating unique book IDs
 app.post('/books', (req, res) => {
@@ -47,4 +55,13 @@ app.delete('/books/:id', (req, res) => {
     }
     books.splice(index, 1);
     res.status(204).send(); // No content response
+});
+
+// Handle React routing, return all requests to React app
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'client/dist/index.html'));
+});
+
+app.listen(port, () => {
+    console.log(`Server running on http://localhost:${port}`);
 });
