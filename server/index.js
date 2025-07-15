@@ -14,10 +14,26 @@ createBooksTable();
 // Get all books
 app.get('/api/books', async (req, res) => {
     try {
+        console.log('Fetching all books...');
         const result = await pool.query('SELECT * FROM books ORDER BY created_at DESC');
-        res.json(result.rows);
+        // Format the price as a number before sending
+        const formattedBooks = result.rows.map(book => ({
+            ...book,
+            price: parseFloat(book.price)
+        }));
+        console.log('Books fetched:', formattedBooks);
+        res.json(formattedBooks);
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        console.error('Error fetching books:', {
+            message: err.message,
+            stack: err.stack,
+            code: err.code
+        });
+        res.status(500).json({ 
+            error: err.message,
+            code: err.code,
+            detail: err.detail
+        });
     }
 });
 

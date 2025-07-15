@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { 
-  Grid, 
   Card, 
   CardContent, 
   Typography, 
@@ -16,7 +15,8 @@ import {
   Fade,
   Alert,
   CircularProgress,
-  Paper
+  Paper,
+  Grid
 } from '@mui/material';
 import { 
   Delete as DeleteIcon, 
@@ -38,11 +38,25 @@ function BookList() {
     try {
       setLoading(true);
       const response = await getAllBooks();
-      setBooks(response.data);
-      setError(null);
+      console.log('API Response:', response); // Debug log
+      if (response && response.data) {
+        // Ensure all books have valid price values
+        const validatedBooks = response.data.map(book => ({
+          ...book,
+          price: typeof book.price === 'number' ? book.price : parseFloat(book.price) || 0
+        }));
+        setBooks(validatedBooks);
+        setError(null);
+      } else {
+        throw new Error('Invalid response format');
+      }
     } catch (error) {
       setError('Error fetching books. Please try again later.');
-      console.error('Error fetching books:', error);
+      console.error('Error fetching books:', {
+        message: error.message,
+        response: error.response,
+        stack: error.stack
+      });
     } finally {
       setLoading(false);
     }
@@ -122,13 +136,22 @@ function BookList() {
   }
 
   return (
-    <>
-      <Box sx={{ 
-        mb: 4,
-        textAlign: 'center',
-        maxWidth: '800px',
-        width: '100%'
-      }}>
+    <Box 
+      sx={{ 
+        width: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center'
+      }}
+    >
+      <Box 
+        sx={{ 
+          mb: 4,
+          textAlign: 'center',
+          maxWidth: '800px',
+          width: '100%'
+        }}
+      >
         <Typography variant="h4" component="h1" gutterBottom fontWeight="bold">
           Your Book Collection
         </Typography>
@@ -137,8 +160,9 @@ function BookList() {
         </Typography>
       </Box>
 
-      <Grid container spacing={3} justifyContent="center">
-        {books.map((book, index) => (
+      <Box sx={{ width: '100%', maxWidth: '1200px' }}>
+        <Grid container spacing={3} sx={{ display: 'flex', justifyContent: 'center' }}>
+          {books.map((book, index) => (
           <Grid item xs={12} sm={6} md={4} key={book.id}>
             <Fade in timeout={300} style={{ transitionDelay: `${index * 100}ms` }}>
               <Card
@@ -163,7 +187,7 @@ function BookList() {
                     <Box sx={{ display: 'flex', alignItems: 'center' }}>
                       <LocalOfferIcon sx={{ fontSize: 20, color: 'primary.main', mr: 1 }} />
                       <Typography variant="h6" color="primary.main" fontWeight="bold">
-                        ${book.price.toFixed(2)}
+                        ${parseFloat(book.price).toFixed(2)}
                       </Typography>
                     </Box>
                   </Box>
@@ -190,7 +214,8 @@ function BookList() {
             </Fade>
           </Grid>
         ))}
-      </Grid>
+        </Grid>
+      </Box>
 
       <Dialog
         open={deleteDialogOpen}
@@ -225,7 +250,7 @@ function BookList() {
           </Button>
         </DialogActions>
       </Dialog>
-    </>
+    </Box>
   );
 }
 
