@@ -70,7 +70,13 @@ function BookList() {
 
   if (loading) {
     return (
-      <Box display="flex" justifyContent="center" alignItems="center" minHeight="60vh">
+      <Box 
+        display="flex" 
+        justifyContent="center" 
+        alignItems="center" 
+        minHeight="60vh"
+        width="100%"
+      >
         <CircularProgress />
       </Box>
     );
@@ -82,9 +88,7 @@ function BookList() {
         {error}
       </Alert>
     );
-  }
-
-  if (books.length === 0) {
+  }    if (books.length === 0) {
     return (
       <Paper 
         sx={{ 
@@ -92,7 +96,10 @@ function BookList() {
           textAlign: 'center',
           borderRadius: 2,
           bgcolor: 'background.paper',
-          mt: 4
+          mt: 4,
+          maxWidth: '600px',
+          width: '100%',
+          mx: 'auto'
         }}
       >
         <MenuBookIcon sx={{ fontSize: 60, color: 'primary.light', mb: 2 }} />
@@ -116,7 +123,12 @@ function BookList() {
 
   return (
     <>
-      <Box sx={{ mb: 4 }}>
+      <Box sx={{ 
+        mb: 4,
+        textAlign: 'center',
+        maxWidth: '800px',
+        width: '100%'
+      }}>
         <Typography variant="h4" component="h1" gutterBottom fontWeight="bold">
           Your Book Collection
         </Typography>
@@ -125,7 +137,7 @@ function BookList() {
         </Typography>
       </Box>
 
-      <Grid container spacing={3}>
+      <Grid container spacing={3} justifyContent="center">
         {books.map((book, index) => (
           <Grid item xs={12} sm={6} md={4} key={book.id}>
             <Fade in timeout={300} style={{ transitionDelay: `${index * 100}ms` }}>

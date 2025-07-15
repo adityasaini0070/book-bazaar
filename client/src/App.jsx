@@ -1,5 +1,5 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { Container, CssBaseline, ThemeProvider, createTheme } from '@mui/material';
+import { Container, CssBaseline, ThemeProvider, createTheme, Box } from '@mui/material';
 import BookList from './components/BookList';
 import BookForm from './components/BookForm';
 import EditBook from './components/EditBook';
@@ -76,13 +76,35 @@ function App() {
       <CssBaseline />
       <Router>
         <Navbar />
-        <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
-          <Routes>
-            <Route path="/" element={<BookList />} />
-            <Route path="/add" element={<BookForm />} />
-            <Route path="/edit/:id" element={<EditBook />} />
-          </Routes>
-        </Container>
+        <Box 
+          sx={{ 
+            minHeight: 'calc(100vh - 64px)', // Full height minus navbar
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            pt: 4,
+            pb: 4,
+            px: 2,
+            backgroundColor: 'background.default'
+          }}
+        >
+          <Container 
+            maxWidth="lg" 
+            sx={{ 
+              flex: 1,
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              width: '100%'
+            }}
+          >
+            <Routes>
+              <Route path="/" element={<BookList />} />
+              <Route path="/add" element={<BookForm />} />
+              <Route path="/edit/:id" element={<EditBook />} />
+            </Routes>
+          </Container>
+        </Box>
       </Router>
     </ThemeProvider>
   );

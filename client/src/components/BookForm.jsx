@@ -9,14 +9,15 @@ import {
   Alert,
   Stack,
   InputAdornment,
-  Fade,
+  Fade
 } from '@mui/material';
 import { 
   LibraryAdd as LibraryAddIcon,
   Title as TitleIcon,
   Person as PersonIcon,
   AttachMoney as AttachMoneyIcon,
-  ArrowBack as ArrowBackIcon
+  ArrowBack as ArrowBackIcon,
+  MenuBook as MenuBookIcon
 } from '@mui/icons-material';
 import { createBook } from '../api';
 
@@ -28,7 +29,7 @@ function BookForm() {
     price: ''
   });
   const [error, setError] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [success, setSuccess] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -36,155 +37,213 @@ function BookForm() {
       ...prev,
       [name]: value
     }));
-    setError(''); // Clear error when user makes changes
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsSubmitting(true);
     try {
-      const bookData = {
-        ...formData,
-        price: parseFloat(formData.price)
-      };
-      
-      await createBook(bookData);
-      navigate('/');
-    } catch (error) {
-      setError(error.response?.data?.error || 'An error occurred while creating the book');
-    } finally {
-      setIsSubmitting(false);
+      await createBook(formData);
+      setSuccess(true);
+      setTimeout(() => {
+        navigate('/');
+      }, 1500);
+    } catch (err) {
+      setError(err.message || 'Failed to add book');
     }
   };
 
   return (
-    <Fade in timeout={500}>
-      <Box maxWidth={600} mx="auto">
-        <Button
-          component={Link}
-          to="/"
-          startIcon={<ArrowBackIcon />}
-          sx={{ mb: 4 }}
-        >
-          Back to Books
-        </Button>
+    <Box sx={{ 
+      p: 3,
+      minHeight: '100vh',
+      bgcolor: 'background.default'
+    }}>
+      <Button
+        component={Link}
+        to="/"
+        startIcon={<ArrowBackIcon />}
+        sx={{ mb: 4 }}
+      >
+        Back to Books
+      </Button>
 
-        <Paper 
-          elevation={0} 
+      <Box sx={{ 
+        display: 'flex',
+        gap: 4,
+        justifyContent: 'center',
+        flexWrap: 'wrap'
+      }}>
+        <Paper
+          component="form"
+          onSubmit={handleSubmit}
+          elevation={2}
           sx={{ 
             p: 4,
             borderRadius: 2,
             bgcolor: 'background.paper',
-            border: '1px solid',
-            borderColor: 'divider',
+            width: '45%',
+            minWidth: '400px',
+            height: 'fit-content',
+            boxShadow: theme => `0 2px 24px ${theme.palette.mode === 'dark' 
+              ? 'rgba(0,0,0,0.2)' 
+              : 'rgba(0,0,0,0.08)'}`,
+            transition: 'box-shadow 0.3s ease-in-out',
+            '&:hover': {
+              boxShadow: theme => `0 4px 32px ${theme.palette.mode === 'dark'
+                ? 'rgba(0,0,0,0.3)'
+                : 'rgba(0,0,0,0.12)'}`
+            }
           }}
         >
-          <Box sx={{ mb: 4, textAlign: 'center' }}>
-            <LibraryAddIcon 
-              sx={{ 
-                fontSize: 48, 
-                color: 'primary.main',
-                mb: 2
-              }} 
-            />
+          <Box sx={{ textAlign: 'center', mb: 4 }}>
+            <LibraryAddIcon sx={{ fontSize: 64, color: 'primary.light', mb: 2 }} />
             <Typography variant="h4" component="h1" gutterBottom fontWeight="bold">
               Add New Book
             </Typography>
             <Typography variant="body1" color="text.secondary">
-              Enter the details of the book you want to add to your collection
+              Enter the details of your book below
             </Typography>
           </Box>
 
-          {error && (
-            <Alert 
-              severity="error" 
-              sx={{ 
-                mb: 3,
-                borderRadius: 2,
+          <Stack spacing={3}>
+            <TextField
+              required
+              fullWidth
+              label="Book Title"
+              name="title"
+              value={formData.title}
+              onChange={handleChange}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <TitleIcon />
+                  </InputAdornment>
+                ),
               }}
+            />
+
+            <TextField
+              required
+              fullWidth
+              label="Author"
+              name="author"
+              value={formData.author}
+              onChange={handleChange}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <PersonIcon />
+                  </InputAdornment>
+                ),
+              }}
+            />
+
+            <TextField
+              required
+              fullWidth
+              label="Price"
+              name="price"
+              type="number"
+              value={formData.price}
+              onChange={handleChange}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <AttachMoneyIcon />
+                  </InputAdornment>
+                ),
+              }}
+            />
+
+            {error && (
+              <Fade in>
+                <Alert severity="error" sx={{ mt: 2 }}>
+                  {error}
+                </Alert>
+              </Fade>
+            )}
+
+            {success && (
+              <Fade in>
+                <Alert severity="success" sx={{ mt: 2 }}>
+                  Book added successfully!
+                </Alert>
+              </Fade>
+            )}
+
+            <Button
+              type="submit"
+              variant="contained"
+              size="large"
+              startIcon={<LibraryAddIcon />}
+              sx={{ mt: 2 }}
             >
-              {error}
-            </Alert>
-          )}
+              Add Book
+            </Button>
+          </Stack>
+        </Paper>
 
-          <Box component="form" onSubmit={handleSubmit}>
-            <Stack spacing={3}>
-              <TextField
-                fullWidth
-                label="Book Title"
-                name="title"
-                value={formData.title}
-                onChange={handleChange}
-                required
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <TitleIcon color="action" />
-                    </InputAdornment>
-                  ),
-                }}
-                placeholder="Enter the book title"
-              />
-              <TextField
-                fullWidth
-                label="Author Name"
-                name="author"
-                value={formData.author}
-                onChange={handleChange}
-                required
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <PersonIcon color="action" />
-                    </InputAdornment>
-                  ),
-                }}
-                placeholder="Enter the author's name"
-              />
-              <TextField
-                fullWidth
-                label="Price"
-                name="price"
-                type="number"
-                value={formData.price}
-                onChange={handleChange}
-                required
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <AttachMoneyIcon color="action" />
-                    </InputAdornment>
-                  ),
-                }}
-                placeholder="0.00"
-                inputProps={{ 
-                  min: 0, 
-                  step: "0.01",
-                  inputMode: 'decimal'
-                }}
-              />
-
-              <Box sx={{ mt: 2 }}>
-                <Button 
-                  type="submit" 
-                  variant="contained" 
-                  color="primary"
-                  size="large"
-                  fullWidth
-                  disabled={isSubmitting}
-                  sx={{ 
-                    py: 1.5,
-                    fontSize: '1.1rem',
-                  }}
-                >
-                  {isSubmitting ? 'Adding Book...' : 'Add Book to Collection'}
-                </Button>
-              </Box>
-            </Stack>
+        <Paper
+          elevation={2}
+          sx={{ 
+            p: 4,
+            borderRadius: 2,
+            bgcolor: 'background.paper',
+            width: '45%',
+            minWidth: '400px',
+            height: 'fit-content',
+            boxShadow: theme => `0 2px 24px ${theme.palette.mode === 'dark' 
+              ? 'rgba(0,0,0,0.2)' 
+              : 'rgba(0,0,0,0.08)'}`,
+            transition: 'box-shadow 0.3s ease-in-out',
+            '&:hover': {
+              boxShadow: theme => `0 4px 32px ${theme.palette.mode === 'dark'
+                ? 'rgba(0,0,0,0.3)'
+                : 'rgba(0,0,0,0.12)'}`
+            }
+          }}
+        >
+          <Box sx={{ textAlign: 'center', mb: 4 }}>
+            <MenuBookIcon sx={{ fontSize: 64, color: 'primary.light', mb: 2 }} />
+            <Typography variant="h4" component="h2" gutterBottom fontWeight="bold">
+              Book Guidelines
+            </Typography>
+            <Typography variant="body1" color="text.secondary">
+              Tips for adding a new book to your collection
+            </Typography>
           </Box>
+
+          <Stack spacing={3}>
+            <Box>
+              <Typography variant="h6" gutterBottom color="primary">
+                Book Title
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                Enter the complete title as it appears on the book cover. Include subtitle if present.
+              </Typography>
+            </Box>
+
+            <Box>
+              <Typography variant="h6" gutterBottom color="primary">
+                Author Name
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                Use the author's full name. For multiple authors, separate with commas.
+              </Typography>
+            </Box>
+
+            <Box>
+              <Typography variant="h6" gutterBottom color="primary">
+                Price
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                Enter the current market price or your purchase price in dollars.
+              </Typography>
+            </Box>
+          </Stack>
         </Paper>
       </Box>
-    </Fade>
+    </Box>
   );
 }
 
