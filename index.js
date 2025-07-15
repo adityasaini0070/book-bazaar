@@ -6,11 +6,12 @@ const app = express();
 const port = process.env.PORT || 3001;
 
 // Middleware
-app.use(cors());
+app.use(cors({
+  origin: process.env.VERCEL_URL ? [`https://${process.env.VERCEL_URL}`, 'https://book-bazaar-69chusp8h-adityasaini0070s-projects.vercel.app'] : 'http://localhost:5173',
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  credentials: true
+}));
 app.use(express.json());
-
-// Serve static files from the React app
-app.use(express.static(path.join(__dirname, 'client/dist')));
 
 // API routes
 const books = [];
