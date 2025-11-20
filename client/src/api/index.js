@@ -6,7 +6,9 @@ const API_BASE_URL = window.location.hostname === 'localhost'
     : '/.netlify/functions';
 
 console.log('=== API Configuration ===');
+console.log('Hostname:', window.location.hostname);
 console.log('API Base URL:', API_BASE_URL);
+console.log('Full origin:', window.location.origin);
 
 const api = axios.create({
     baseURL: API_BASE_URL,
@@ -36,10 +38,18 @@ api.interceptors.response.use(
 
 export const getAllBooks = async () => {
     try {
+        console.log('Fetching books from:', `${API_BASE_URL}/books`);
         const response = await api.get('/books');
+        console.log('Books fetched successfully:', response.data);
         return { data: response.data };
     } catch (error) {
         console.error('getAllBooks error:', error);
+        console.error('Error details:', {
+            message: error.message,
+            response: error.response,
+            request: error.request,
+            config: error.config
+        });
         throw error;
     }
 };
