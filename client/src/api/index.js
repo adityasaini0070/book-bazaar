@@ -1,13 +1,14 @@
 import axios from 'axios';
 
-// API Base URL configuration - Force production URL
-const API_BASE_URL = '/api';
+// API Base URL configuration
+const API_BASE_URL = window.location.hostname === 'localhost' 
+    ? 'http://localhost:3001/api' 
+    : '/api';
 
 console.log('=== API Configuration ===');
+console.log('Hostname:', window.location.hostname);
 console.log('API Base URL:', API_BASE_URL);
-console.log('Production Mode:', import.meta.env.PROD);
-console.log('Environment:', import.meta.env.MODE);
-console.log('DEV Mode:', import.meta.env.DEV);
+console.log('Full URL:', window.location.href);
 
 const api = axios.create({
     baseURL: API_BASE_URL,
