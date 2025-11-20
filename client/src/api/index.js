@@ -1,15 +1,12 @@
 import axios from 'axios';
 
-// API Base URL configuration - Build timestamp: 2025-11-20-16:00
+// API Base URL configuration for Netlify
 const API_BASE_URL = window.location.hostname === 'localhost' 
     ? 'http://localhost:3001/api' 
-    : '/api';
+    : '/.netlify/functions';
 
-console.log('=== API Configuration v2 ===');
-console.log('Hostname:', window.location.hostname);
+console.log('=== API Configuration ===');
 console.log('API Base URL:', API_BASE_URL);
-console.log('Full URL:', window.location.href);
-console.log('Timestamp: 2025-11-20-16:00');
 
 const api = axios.create({
     baseURL: API_BASE_URL,
