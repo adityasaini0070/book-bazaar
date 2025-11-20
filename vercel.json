@@ -1,16 +1,11 @@
 {
   "version": 2,
+  "buildCommand": "npm run build",
+  "installCommand": "npm install && cd client && npm install",
   "builds": [
     {
       "src": "index.js",
       "use": "@vercel/node"
-    },
-    {
-      "src": "client/package.json",
-      "use": "@vercel/static-build",
-      "config": {
-        "distDir": "dist"
-      }
     }
   ],
   "routes": [
@@ -19,8 +14,16 @@
       "dest": "/index.js"
     },
     {
-      "src": "/(.*)",
+      "src": "/assets/(.*)",
+      "dest": "/client/dist/assets/$1"
+    },
+    {
+      "src": "/(.*\\..+)",
       "dest": "/client/dist/$1"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/client/dist/index.html"
     }
   ]
 }

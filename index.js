@@ -10,9 +10,7 @@ app.use(cors());
 app.use(express.json());
 
 // Serve static files from the React app
-if (process.env.NODE_ENV === 'production') {
-  app.use(express.static(path.join(__dirname, 'client/dist')));
-}
+app.use(express.static(path.join(__dirname, 'client/dist')));
 
 // API routes
 const books = [];
@@ -60,11 +58,9 @@ app.delete('/api/books/:id', (req, res) => {
 });
 
 // Handle React routing, return all requests to React app
-if (process.env.NODE_ENV === 'production') {
-  app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, 'client/dist/index.html'));
-  });
-}
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'client/dist/index.html'));
+});
 
 app.listen(port, () => {
     console.log(`Server running on http://localhost:${port}`);
