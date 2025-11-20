@@ -1,21 +1,27 @@
 import axios from 'axios';
 
-// API Base URL configuration for Netlify
-const API_BASE_URL = window.location.hostname === 'localhost' 
-    ? 'http://localhost:3001/api' 
-    : '/.netlify/functions';
-
-console.log('=== API Configuration ===');
-console.log('Hostname:', window.location.hostname);
-console.log('API Base URL:', API_BASE_URL);
-console.log('Full origin:', window.location.origin);
+// Function to get API base URL dynamically at runtime
+const getApiBaseUrl = () => {
+    const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+    const baseUrl = isLocal ? 'http://localhost:3001/api' : '/.netlify/functions';
+    console.log('=== API Configuration ===');
+    console.log('Hostname:', window.location.hostname);
+    console.log('Is Local:', isLocal);
+    console.log('API Base URL:', baseUrl);
+    return baseUrl;
+};
 
 const api = axios.create({
-    baseURL: API_BASE_URL,
     headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json'
     }
+});
+
+// Add request interceptor to set baseURL dynamically
+api.interceptors.request.use((config) => {
+    config.baseURL = getApiBaseUrl();
+    return config;
 });
 
 // Add response interceptor
@@ -38,7 +44,7 @@ api.interceptors.response.use(
 
 export const getAllBooks = async () => {
     try {
-        console.log('Fetching books from:', `${API_BASE_URL}/books`);
+        console.log('Fetching books from:', `${getApiBaseUrl()}/books`);
         const response = await api.get('/books');
         console.log('Books fetched successfully:', response.data);
         return { data: response.data };
