@@ -1,10 +1,11 @@
 import axios from 'axios';
 
+// Dynamic API configuration - v2.0
 // Function to get API base URL dynamically at runtime
 const getApiBaseUrl = () => {
     const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
     const baseUrl = isLocal ? 'http://localhost:3001/api' : '/.netlify/functions';
-    console.log('=== API Configuration ===');
+    console.log('=== API Configuration v2.0 ===');
     console.log('Hostname:', window.location.hostname);
     console.log('Is Local:', isLocal);
     console.log('API Base URL:', baseUrl);
