@@ -1,6 +1,9 @@
 // Shared storage (will reset on cold starts)
-let books = [];
-let nextId = 1;
+let books = [
+  { id: 1, title: "The Great Gatsby", author: "F. Scott Fitzgerald", price: 12.99 },
+  { id: 2, title: "To Kill a Mockingbird", author: "Harper Lee", price: 14.99 }
+];
+let nextId = 3;
 
 exports.handler = async (event, context) => {
   // Enable CORS
