@@ -1,11 +1,14 @@
 import axios from 'axios';
 
-// API Base URL configuration
+// API Base URL configuration - Updated
 const API_BASE_URL = import.meta.env.PROD 
     ? '/api' 
     : 'http://localhost:3001/api';
 
-console.log('API Base URL:', API_BASE_URL, 'Production:', import.meta.env.PROD);
+console.log('=== API Configuration ===');
+console.log('API Base URL:', API_BASE_URL);
+console.log('Production Mode:', import.meta.env.PROD);
+console.log('Environment:', import.meta.env.MODE);
 
 const api = axios.create({
     baseURL: API_BASE_URL,
