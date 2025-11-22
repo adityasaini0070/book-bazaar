@@ -184,7 +184,43 @@ function BookList() {
                         {book.author}
                       </Typography>
                     </Box>
-                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                    
+                    {book.genre && (
+                      <Typography variant="caption" color="text.secondary" display="block" mb={1}>
+                        📚 {book.genre}
+                      </Typography>
+                    )}
+                    
+                    {book.publication_year && (
+                      <Typography variant="caption" color="text.secondary" display="block" mb={1}>
+                        📅 {book.publication_year}
+                      </Typography>
+                    )}
+                    
+                    {book.pages && (
+                      <Typography variant="caption" color="text.secondary" display="block" mb={1}>
+                        📄 {book.pages} pages
+                      </Typography>
+                    )}
+                    
+                    {book.description && (
+                      <Typography 
+                        variant="body2" 
+                        color="text.secondary" 
+                        sx={{ 
+                          mt: 1,
+                          display: '-webkit-box',
+                          WebkitLineClamp: 2,
+                          WebkitBoxOrient: 'vertical',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis'
+                        }}
+                      >
+                        {book.description}
+                      </Typography>
+                    )}
+                    
+                    <Box sx={{ display: 'flex', alignItems: 'center', mt: 2 }}>
                       <LocalOfferIcon sx={{ fontSize: 20, color: 'primary.main', mr: 1 }} />
                       <Typography variant="h6" color="primary.main" fontWeight="bold">
                         ${parseFloat(book.price).toFixed(2)}
