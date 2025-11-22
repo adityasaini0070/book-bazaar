@@ -1,8 +1,12 @@
-import { AppBar, Toolbar, Typography, Button, Box, Container } from '@mui/material';
+import { AppBar, Toolbar, Typography, Button, Box, Container, IconButton, Tooltip } from '@mui/material';
 import { Link } from 'react-router-dom';
-import { LibraryBooks as LibraryBooksIcon } from '@mui/icons-material';
+import { 
+  LibraryBooks as LibraryBooksIcon,
+  Brightness4 as DarkModeIcon,
+  Brightness7 as LightModeIcon
+} from '@mui/icons-material';
 
-function Navbar() {
+function Navbar({ mode, onToggleTheme }) {
   return (
     <AppBar position="static" elevation={0} sx={{ 
       backgroundColor: 'background.paper', 
@@ -34,6 +38,18 @@ function Navbar() {
             </Typography>
           </Box>
           <Box sx={{ flexGrow: 1 }} />
+          
+          {/* Theme Toggle Button */}
+          <Tooltip title={mode === 'light' ? 'Switch to Dark Mode' : 'Switch to Light Mode'}>
+            <IconButton 
+              onClick={onToggleTheme} 
+              color="primary"
+              sx={{ mr: 2 }}
+            >
+              {mode === 'light' ? <DarkModeIcon /> : <LightModeIcon />}
+            </IconButton>
+          </Tooltip>
+
           <Button 
             variant="contained" 
             component={Link} 

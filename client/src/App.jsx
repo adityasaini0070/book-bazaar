@@ -1,27 +1,29 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Container, CssBaseline, ThemeProvider, createTheme, Box } from '@mui/material';
+import { useState, useMemo, useEffect } from 'react';
 import BookList from './components/BookList';
 import BookForm from './components/BookForm';
 import EditBook from './components/EditBook';
 import Navbar from './components/Navbar';
 import ErrorBoundary from './components/ErrorBoundary';
 
-const theme = createTheme({
+// Theme configuration function
+const getTheme = (mode) => createTheme({
   palette: {
-    mode: 'light',
+    mode,
     primary: {
-      main: '#2563eb', // Modern blue
+      main: '#2563eb',
       light: '#60a5fa',
       dark: '#1e40af',
     },
     secondary: {
-      main: '#db2777', // Modern pink
+      main: '#db2777',
       light: '#f472b6',
       dark: '#be185d',
     },
     background: {
-      default: '#f8fafc',
-      paper: '#ffffff',
+      default: mode === 'light' ? '#f8fafc' : '#0f172a',
+      paper: mode === 'light' ? '#ffffff' : '#1e293b',
     },
     error: {
       main: '#ef4444',
@@ -72,12 +74,31 @@ const theme = createTheme({
 });
 
 function App() {
+  // Get theme preference from localStorage or default to light
+  const [mode, setMode] = useState(() => {
+    const savedMode = localStorage.getItem('themeMode');
+    return savedMode || 'light';
+  });
+
+  // Create theme based on current mode
+  const theme = useMemo(() => getTheme(mode), [mode]);
+
+  // Save theme preference to localStorage whenever it changes
+  useEffect(() => {
+    localStorage.setItem('themeMode', mode);
+  }, [mode]);
+
+  // Toggle theme function
+  const toggleTheme = () => {
+    setMode((prevMode) => (prevMode === 'light' ? 'dark' : 'light'));
+  };
+
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <Router>
         <ErrorBoundary>
-          <Navbar />
+          <Navbar mode={mode} onToggleTheme={toggleTheme} />
           <Box 
             sx={{ 
               minHeight: 'calc(100vh - 64px)', // Full height minus navbar
