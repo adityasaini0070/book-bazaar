@@ -336,6 +336,100 @@ function BookList() {
           </Paper>
         ) : (
           <Grid container spacing={3}>
+            {/* Books Grid */}
+            <Grid item xs={12} md={8} lg={9}>
+              <Grid container spacing={3}>
+                {filteredBooks.map((book, index) => (
+          <Grid item xs={12} sm={6} md={4} key={book.id}>
+            <Fade in timeout={300} style={{ transitionDelay: `${index * 100}ms` }}>
+              <Card
+                sx={{
+                  height: '100%',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  position: 'relative',
+                }}
+              >
+                <CardContent sx={{ flexGrow: 1 }}>
+                  <Box sx={{ mb: 2 }}>
+                    <Typography variant="h6" component="div" gutterBottom>
+                      {book.title}
+                    </Typography>
+                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                      <PersonIcon sx={{ fontSize: 20, color: 'text.secondary', mr: 1 }} />
+                      <Typography variant="body2" color="text.secondary">
+                        {book.author}
+                      </Typography>
+                    </Box>
+                    
+                    {book.genre && (
+                      <Typography variant="caption" color="text.secondary" display="block" mb={1}>
+                        📚 {book.genre}
+                      </Typography>
+                    )}
+                    
+                    {book.publication_year && (
+                      <Typography variant="caption" color="text.secondary" display="block" mb={1}>
+                        📅 {book.publication_year}
+                      </Typography>
+                    )}
+                    
+                    {book.pages && (
+                      <Typography variant="caption" color="text.secondary" display="block" mb={1}>
+                        📄 {book.pages} pages
+                      </Typography>
+                    )}
+                    
+                    {book.description && (
+                      <Typography 
+                        variant="body2" 
+                        color="text.secondary" 
+                        sx={{ 
+                          mt: 1,
+                          display: '-webkit-box',
+                          WebkitLineClamp: 2,
+                          WebkitBoxOrient: 'vertical',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis'
+                        }}
+                      >
+                        {book.description}
+                      </Typography>
+                    )}
+                    
+                    <Box sx={{ display: 'flex', alignItems: 'center', mt: 2 }}>
+                      <LocalOfferIcon sx={{ fontSize: 20, color: 'primary.main', mr: 1 }} />
+                      <Typography variant="h6" color="primary.main" fontWeight="bold">
+                        ${parseFloat(book.price).toFixed(2)}
+                      </Typography>
+                    </Box>
+                  </Box>
+                </CardContent>
+                <CardActions sx={{ justifyContent: 'flex-end', p: 2, pt: 0 }}>
+                  <Button
+                    size="small"
+                    startIcon={<EditIcon />}
+                    component={Link}
+                    to={`/edit/${book.id}`}
+                  >
+                    Edit
+                  </Button>
+                  <Button
+                    size="small"
+                    color="error"
+                    startIcon={<DeleteIcon />}
+                    onClick={() => handleDeleteClick(book)}
+                  >
+                    Delete
+                  </Button>
+                </CardActions>
+              </Card>
+            </Fade>
+          </Grid>
+        ))}
+              </Grid>
+            </Grid>
+
             {/* Statistics Dashboard */}
             <Grid item xs={12} md={4} lg={3}>
               <Paper 
@@ -435,100 +529,6 @@ function BookList() {
                   </Box>
                 </Box>
               </Paper>
-            </Grid>
-
-            {/* Books Grid */}
-            <Grid item xs={12} md={8} lg={9}>
-              <Grid container spacing={3}>
-                {filteredBooks.map((book, index) => (
-          <Grid item xs={12} sm={6} md={4} key={book.id}>
-            <Fade in timeout={300} style={{ transitionDelay: `${index * 100}ms` }}>
-              <Card
-                sx={{
-                  height: '100%',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  position: 'relative',
-                }}
-              >
-                <CardContent sx={{ flexGrow: 1 }}>
-                  <Box sx={{ mb: 2 }}>
-                    <Typography variant="h6" component="div" gutterBottom>
-                      {book.title}
-                    </Typography>
-                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                      <PersonIcon sx={{ fontSize: 20, color: 'text.secondary', mr: 1 }} />
-                      <Typography variant="body2" color="text.secondary">
-                        {book.author}
-                      </Typography>
-                    </Box>
-                    
-                    {book.genre && (
-                      <Typography variant="caption" color="text.secondary" display="block" mb={1}>
-                        📚 {book.genre}
-                      </Typography>
-                    )}
-                    
-                    {book.publication_year && (
-                      <Typography variant="caption" color="text.secondary" display="block" mb={1}>
-                        📅 {book.publication_year}
-                      </Typography>
-                    )}
-                    
-                    {book.pages && (
-                      <Typography variant="caption" color="text.secondary" display="block" mb={1}>
-                        📄 {book.pages} pages
-                      </Typography>
-                    )}
-                    
-                    {book.description && (
-                      <Typography 
-                        variant="body2" 
-                        color="text.secondary" 
-                        sx={{ 
-                          mt: 1,
-                          display: '-webkit-box',
-                          WebkitLineClamp: 2,
-                          WebkitBoxOrient: 'vertical',
-                          overflow: 'hidden',
-                          textOverflow: 'ellipsis'
-                        }}
-                      >
-                        {book.description}
-                      </Typography>
-                    )}
-                    
-                    <Box sx={{ display: 'flex', alignItems: 'center', mt: 2 }}>
-                      <LocalOfferIcon sx={{ fontSize: 20, color: 'primary.main', mr: 1 }} />
-                      <Typography variant="h6" color="primary.main" fontWeight="bold">
-                        ${parseFloat(book.price).toFixed(2)}
-                      </Typography>
-                    </Box>
-                  </Box>
-                </CardContent>
-                <CardActions sx={{ justifyContent: 'flex-end', p: 2, pt: 0 }}>
-                  <Button
-                    size="small"
-                    startIcon={<EditIcon />}
-                    component={Link}
-                    to={`/edit/${book.id}`}
-                  >
-                    Edit
-                  </Button>
-                  <Button
-                    size="small"
-                    color="error"
-                    startIcon={<DeleteIcon />}
-                    onClick={() => handleDeleteClick(book)}
-                  >
-                    Delete
-                  </Button>
-                </CardActions>
-              </Card>
-            </Fade>
-          </Grid>
-        ))}
-              </Grid>
             </Grid>
           </Grid>
         )}
