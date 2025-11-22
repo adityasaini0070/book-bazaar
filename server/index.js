@@ -61,13 +61,16 @@ app.post('/api/books', async (req, res) => {
     try {
         const { title, author, price } = req.body;
         
-        if (!title || !author || typeof price !== 'number' || price <= 0) {
+        // Convert price to number
+        const numPrice = parseFloat(price);
+        
+        if (!title || !author || !price || isNaN(numPrice) || numPrice <= 0) {
             return res.status(400).json({ error: "All fields are required and price must be a positive number" });
         }
 
         const result = await pool.query(
             'INSERT INTO books (title, author, price) VALUES ($1, $2, $3) RETURNING *',
-            [title, author, price]
+            [title, author, numPrice]
         );
         
         res.status(201).json(result.rows[0]);
@@ -82,13 +85,16 @@ app.put('/api/books/:id', async (req, res) => {
         const { id } = req.params;
         const { title, author, price } = req.body;
         
-        if (!title || !author || typeof price !== 'number' || price <= 0) {
+        // Convert price to number
+        const numPrice = parseFloat(price);
+        
+        if (!title || !author || !price || isNaN(numPrice) || numPrice <= 0) {
             return res.status(400).json({ error: "All fields are required and price must be a positive number" });
         }
 
         const result = await pool.query(
             'UPDATE books SET title = $1, author = $2, price = $3 WHERE id = $4 RETURNING *',
-            [title, author, price, id]
+            [title, author, numPrice, id]
         );
         
         if (result.rows.length === 0) {
