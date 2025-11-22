@@ -24,7 +24,11 @@ import {
   Person as PersonIcon,
   LocalOffer as LocalOfferIcon,
   Search as SearchIcon,
-  FilterList as FilterListIcon
+  FilterList as FilterListIcon,
+  TrendingUp as TrendingUpIcon,
+  Category as CategoryIcon,
+  CalendarToday as CalendarTodayIcon,
+  AutoStories as AutoStoriesIcon
 } from '@mui/icons-material';
 import { getAllBooks, deleteBook } from '../api';
 
@@ -83,6 +87,17 @@ function BookList() {
 
   // Get unique genres for filter
   const genres = ['all', ...new Set(books.map(b => b.genre).filter(Boolean))];
+
+  // Calculate statistics
+  const stats = {
+    totalBooks: books.length,
+    totalValue: books.reduce((sum, book) => sum + parseFloat(book.price), 0),
+    totalPages: books.reduce((sum, book) => sum + (parseInt(book.pages) || 0), 0),
+    genreCount: new Set(books.map(b => b.genre).filter(Boolean)).size,
+    avgPrice: books.length > 0 ? books.reduce((sum, book) => sum + parseFloat(book.price), 0) / books.length : 0,
+    mostExpensive: books.length > 0 ? Math.max(...books.map(b => parseFloat(b.price))) : 0,
+    cheapest: books.length > 0 ? Math.min(...books.map(b => parseFloat(b.price))) : 0
+  };
 
   const fetchBooks = async () => {
     try {
@@ -320,8 +335,112 @@ function BookList() {
             </Typography>
           </Paper>
         ) : (
-          <Grid container spacing={3} sx={{ display: 'flex', justifyContent: 'center' }}>
-            {filteredBooks.map((book, index) => (
+          <Grid container spacing={3}>
+            {/* Statistics Dashboard */}
+            <Grid item xs={12} md={4} lg={3}>
+              <Paper 
+                elevation={3}
+                sx={{ 
+                  p: 3, 
+                  borderRadius: 2,
+                  position: 'sticky',
+                  top: 20,
+                  bgcolor: 'background.paper'
+                }}
+              >
+                <Typography variant="h6" gutterBottom fontWeight="bold" mb={3}>
+                  📊 Collection Stats
+                </Typography>
+
+                {/* Total Books */}
+                <Box sx={{ mb: 3 }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                    <MenuBookIcon sx={{ fontSize: 20, color: 'primary.main', mr: 1 }} />
+                    <Typography variant="body2" color="text.secondary">
+                      Total Books
+                    </Typography>
+                  </Box>
+                  <Typography variant="h4" fontWeight="bold">
+                    {stats.totalBooks}
+                  </Typography>
+                </Box>
+
+                {/* Total Value */}
+                <Box sx={{ mb: 3 }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                    <TrendingUpIcon sx={{ fontSize: 20, color: 'success.main', mr: 1 }} />
+                    <Typography variant="body2" color="text.secondary">
+                      Collection Value
+                    </Typography>
+                  </Box>
+                  <Typography variant="h5" fontWeight="bold" color="success.main">
+                    ${stats.totalValue.toFixed(2)}
+                  </Typography>
+                </Box>
+
+                {/* Total Pages */}
+                <Box sx={{ mb: 3 }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                    <AutoStoriesIcon sx={{ fontSize: 20, color: 'info.main', mr: 1 }} />
+                    <Typography variant="body2" color="text.secondary">
+                      Total Pages
+                    </Typography>
+                  </Box>
+                  <Typography variant="h5" fontWeight="bold" color="info.main">
+                    {stats.totalPages.toLocaleString()}
+                  </Typography>
+                </Box>
+
+                {/* Genres */}
+                <Box sx={{ mb: 3 }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                    <CategoryIcon sx={{ fontSize: 20, color: 'secondary.main', mr: 1 }} />
+                    <Typography variant="body2" color="text.secondary">
+                      Genres
+                    </Typography>
+                  </Box>
+                  <Typography variant="h5" fontWeight="bold" color="secondary.main">
+                    {stats.genreCount}
+                  </Typography>
+                </Box>
+
+                {/* Price Stats */}
+                <Box sx={{ mt: 4, pt: 3, borderTop: '1px solid', borderColor: 'divider' }}>
+                  <Typography variant="subtitle2" color="text.secondary" mb={2}>
+                    Price Range
+                  </Typography>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+                    <Typography variant="body2" color="text.secondary">
+                      Average:
+                    </Typography>
+                    <Typography variant="body2" fontWeight="bold">
+                      ${stats.avgPrice.toFixed(2)}
+                    </Typography>
+                  </Box>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+                    <Typography variant="body2" color="text.secondary">
+                      Highest:
+                    </Typography>
+                    <Typography variant="body2" fontWeight="bold" color="error.main">
+                      ${stats.mostExpensive.toFixed(2)}
+                    </Typography>
+                  </Box>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <Typography variant="body2" color="text.secondary">
+                      Lowest:
+                    </Typography>
+                    <Typography variant="body2" fontWeight="bold" color="success.main">
+                      ${stats.cheapest.toFixed(2)}
+                    </Typography>
+                  </Box>
+                </Box>
+              </Paper>
+            </Grid>
+
+            {/* Books Grid */}
+            <Grid item xs={12} md={8} lg={9}>
+              <Grid container spacing={3}>
+                {filteredBooks.map((book, index) => (
           <Grid item xs={12} sm={6} md={4} key={book.id}>
             <Fade in timeout={300} style={{ transitionDelay: `${index * 100}ms` }}>
               <Card
@@ -409,6 +528,8 @@ function BookList() {
             </Fade>
           </Grid>
         ))}
+              </Grid>
+            </Grid>
           </Grid>
         )}
       </Box>
