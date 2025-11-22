@@ -340,7 +340,7 @@ function BookList() {
             <Grid item xs={12} md={8} lg={9}>
               <Grid container spacing={3}>
                 {filteredBooks.map((book, index) => (
-          <Grid item xs={12} sm={6} md={4} key={book.id}>
+          <Grid item xs={12} key={book.id}>
             <Fade in timeout={300} style={{ transitionDelay: `${index * 100}ms` }}>
               <Card
                 sx={{
