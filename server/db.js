@@ -1,12 +1,19 @@
 const { Pool } = require('pg');
-require('dotenv').config();
+const path = require('path');
+require('dotenv').config({ path: path.join(__dirname, '.env') });
+
+// Validate environment variables
+if (!process.env.DB_PASSWORD) {
+    console.error('Error: DB_PASSWORD is not set in .env file');
+    process.exit(1);
+}
 
 const pool = new Pool({
-    user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-    host: process.env.DB_HOST,
-    port: process.env.DB_PORT,
-    database: process.env.DB_NAME,
+    user: process.env.DB_USER || 'postgres',
+    password: String(process.env.DB_PASSWORD), // Ensure it's a string
+    host: process.env.DB_HOST || 'localhost',
+    port: parseInt(process.env.DB_PORT) || 5432,
+    database: process.env.DB_NAME || 'book_bazaar',
 });
 
 // Test database connection
