@@ -103,7 +103,7 @@ function EditBook() {
 
   return (
     <Fade in timeout={500}>
-      <Box maxWidth={600} mx="auto">
+      <Box sx={{ p: 3, width: '100%', maxWidth: '900px', mx: 'auto' }}>
         <Button
           component={Link}
           to="/"

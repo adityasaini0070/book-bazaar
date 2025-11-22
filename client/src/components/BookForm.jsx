@@ -61,8 +61,7 @@ function BookForm() {
   return (
     <Box sx={{ 
       p: 3,
-      minHeight: '100vh',
-      bgcolor: 'background.default'
+      width: '100%'
     }}>
       <Button
         component={Link}
@@ -76,7 +75,6 @@ function BookForm() {
       <Box sx={{ 
         display: 'flex',
         gap: 4,
-        justifyContent: 'center',
         flexWrap: 'wrap'
       }}>
         <Paper
@@ -88,7 +86,6 @@ function BookForm() {
             borderRadius: 2,
             bgcolor: 'background.paper',
             flex: 1,
-            maxWidth: '900px',
             height: 'fit-content',
             boxShadow: theme => `0 2px 24px ${theme.palette.mode === 'dark' 
               ? 'rgba(0,0,0,0.2)' 

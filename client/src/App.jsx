@@ -102,43 +102,27 @@ function App() {
           <Box 
             sx={{ 
               minHeight: 'calc(100vh - 64px)', // Full height minus navbar
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              pt: 4,
-              pb: 4,
-              px: 2,
+              width: '100%',
               backgroundColor: 'background.default'
             }}
           >
-            <Container 
-              maxWidth="lg" 
-              sx={{ 
-                flex: 1,
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                width: '100%'
-              }}
-            >
-              <Routes>
-                <Route path="/" element={
-                  <ErrorBoundary>
-                    <BookList />
-                  </ErrorBoundary>
-                } />
-                <Route path="/add" element={
-                  <ErrorBoundary>
-                    <BookForm />
-                  </ErrorBoundary>
-                } />
-                <Route path="/edit/:id" element={
-                  <ErrorBoundary>
-                    <EditBook />
-                  </ErrorBoundary>
-                } />
-              </Routes>
-            </Container>
+            <Routes>
+              <Route path="/" element={
+                <ErrorBoundary>
+                  <BookList />
+                </ErrorBoundary>
+              } />
+              <Route path="/add" element={
+                <ErrorBoundary>
+                  <BookForm />
+                </ErrorBoundary>
+              } />
+              <Route path="/edit/:id" element={
+                <ErrorBoundary>
+                  <EditBook />
+                </ErrorBoundary>
+              } />
+            </Routes>
           </Box>
         </ErrorBoundary>
       </Router>
