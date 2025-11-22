@@ -233,7 +233,6 @@ function BookList() {
           p: 3, 
           mb: 4, 
           width: '100%', 
-          maxWidth: '1200px',
           borderRadius: 2
         }}
       >
@@ -318,7 +317,7 @@ function BookList() {
         </Typography>
       </Paper>
 
-      <Box sx={{ width: '100%', maxWidth: '1200px' }}>
+      <Box sx={{ width: '100%' }}>
         {filteredBooks.length === 0 ? (
           <Paper 
             sx={{ 
@@ -337,10 +336,10 @@ function BookList() {
         ) : (
           <Grid container spacing={3}>
             {/* Books Grid */}
-            <Grid item xs={12} md={8} lg={9}>
+            <Grid item xs={12} md={9}>
               <Grid container spacing={3}>
                 {filteredBooks.map((book, index) => (
-          <Grid item xs={12} key={book.id}>
+          <Grid item xs={12} sm={6} md={4} key={book.id}>
             <Fade in timeout={300} style={{ transitionDelay: `${index * 100}ms` }}>
               <Card
                 sx={{
@@ -431,7 +430,7 @@ function BookList() {
             </Grid>
 
             {/* Statistics Dashboard */}
-            <Grid item xs={12} md={4} lg={3}>
+            <Grid item xs={12} md={3}>
               <Paper 
                 elevation={3}
                 sx={{ 
