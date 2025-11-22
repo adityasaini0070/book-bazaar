@@ -34,6 +34,12 @@ const createBooksTable = async () => {
                 title VARCHAR(255) NOT NULL,
                 author VARCHAR(255) NOT NULL,
                 price DECIMAL(10,2) NOT NULL,
+                isbn VARCHAR(20),
+                genre VARCHAR(100),
+                publication_year INTEGER,
+                publisher VARCHAR(255),
+                pages INTEGER,
+                description TEXT,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );
         `);

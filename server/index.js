@@ -59,18 +59,20 @@ app.get('/api/books/:id', async (req, res) => {
 // Create a new book
 app.post('/api/books', async (req, res) => {
     try {
-        const { title, author, price } = req.body;
+        const { title, author, price, isbn, genre, publicationYear, publisher, pages, description } = req.body;
         
         // Convert price to number
         const numPrice = parseFloat(price);
         
         if (!title || !author || !price || isNaN(numPrice) || numPrice <= 0) {
-            return res.status(400).json({ error: "All fields are required and price must be a positive number" });
+            return res.status(400).json({ error: "Title, author, and valid price are required" });
         }
 
         const result = await pool.query(
-            'INSERT INTO books (title, author, price) VALUES ($1, $2, $3) RETURNING *',
-            [title, author, numPrice]
+            `INSERT INTO books (title, author, price, isbn, genre, publication_year, publisher, pages, description) 
+             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *`,
+            [title, author, numPrice, isbn || null, genre || null, publicationYear || null, 
+             publisher || null, pages || null, description || null]
         );
         
         res.status(201).json(result.rows[0]);
@@ -83,18 +85,21 @@ app.post('/api/books', async (req, res) => {
 app.put('/api/books/:id', async (req, res) => {
     try {
         const { id } = req.params;
-        const { title, author, price } = req.body;
+        const { title, author, price, isbn, genre, publicationYear, publisher, pages, description } = req.body;
         
         // Convert price to number
         const numPrice = parseFloat(price);
         
         if (!title || !author || !price || isNaN(numPrice) || numPrice <= 0) {
-            return res.status(400).json({ error: "All fields are required and price must be a positive number" });
+            return res.status(400).json({ error: "Title, author, and valid price are required" });
         }
 
         const result = await pool.query(
-            'UPDATE books SET title = $1, author = $2, price = $3 WHERE id = $4 RETURNING *',
-            [title, author, numPrice, id]
+            `UPDATE books SET title = $1, author = $2, price = $3, isbn = $4, genre = $5, 
+             publication_year = $6, publisher = $7, pages = $8, description = $9 
+             WHERE id = $10 RETURNING *`,
+            [title, author, numPrice, isbn || null, genre || null, publicationYear || null, 
+             publisher || null, pages || null, description || null, id]
         );
         
         if (result.rows.length === 0) {

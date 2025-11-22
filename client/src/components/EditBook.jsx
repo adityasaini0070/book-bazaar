@@ -29,7 +29,13 @@ function EditBook() {
   const [formData, setFormData] = useState({
     title: '',
     author: '',
-    price: ''
+    price: '',
+    isbn: '',
+    genre: '',
+    publicationYear: '',
+    publisher: '',
+    pages: '',
+    description: ''
   });
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -41,7 +47,13 @@ function EditBook() {
         setFormData({
           title: response.data.title,
           author: response.data.author,
-          price: response.data.price.toString()
+          price: response.data.price.toString(),
+          isbn: response.data.isbn || '',
+          genre: response.data.genre || '',
+          publicationYear: response.data.publication_year || '',
+          publisher: response.data.publisher || '',
+          pages: response.data.pages || '',
+          description: response.data.description || ''
         });
         setError('');
       } catch (error) {
@@ -141,56 +153,117 @@ function EditBook() {
 
           <Box component="form" onSubmit={handleSubmit}>
             <Stack spacing={3}>
+              {/* Row 1: Title and Author */}
+              <Box sx={{ display: 'flex', gap: 2 }}>
+                <TextField
+                  fullWidth
+                  label="Book Title"
+                  name="title"
+                  value={formData.title}
+                  onChange={handleChange}
+                  required
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <TitleIcon color="action" />
+                      </InputAdornment>
+                    ),
+                  }}
+                />
+                <TextField
+                  fullWidth
+                  label="Author Name"
+                  name="author"
+                  value={formData.author}
+                  onChange={handleChange}
+                  required
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <PersonIcon color="action" />
+                      </InputAdornment>
+                    ),
+                  }}
+                />
+              </Box>
+
+              {/* Row 2: Genre and ISBN */}
+              <Box sx={{ display: 'flex', gap: 2 }}>
+                <TextField
+                  fullWidth
+                  label="Genre"
+                  name="genre"
+                  value={formData.genre}
+                  onChange={handleChange}
+                />
+                <TextField
+                  fullWidth
+                  label="ISBN"
+                  name="isbn"
+                  value={formData.isbn}
+                  onChange={handleChange}
+                />
+              </Box>
+
+              {/* Row 3: Price, Year, Pages */}
+              <Box sx={{ display: 'flex', gap: 2 }}>
+                <TextField
+                  fullWidth
+                  label="Price"
+                  name="price"
+                  type="number"
+                  value={formData.price}
+                  onChange={handleChange}
+                  required
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <AttachMoneyIcon color="action" />
+                      </InputAdornment>
+                    ),
+                  }}
+                  inputProps={{ 
+                    min: 0, 
+                    step: "0.01",
+                    inputMode: 'decimal'
+                  }}
+                />
+                <TextField
+                  fullWidth
+                  label="Publication Year"
+                  name="publicationYear"
+                  type="number"
+                  value={formData.publicationYear}
+                  onChange={handleChange}
+                />
+                <TextField
+                  fullWidth
+                  label="Pages"
+                  name="pages"
+                  type="number"
+                  value={formData.pages}
+                  onChange={handleChange}
+                />
+              </Box>
+
+              {/* Row 4: Publisher */}
               <TextField
                 fullWidth
-                label="Book Title"
-                name="title"
-                value={formData.title}
+                label="Publisher"
+                name="publisher"
+                value={formData.publisher}
                 onChange={handleChange}
-                required
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <TitleIcon color="action" />
-                    </InputAdornment>
-                  ),
-                }}
               />
+
+              {/* Row 5: Description */}
               <TextField
                 fullWidth
-                label="Author Name"
-                name="author"
-                value={formData.author}
+                label="Description"
+                name="description"
+                value={formData.description}
                 onChange={handleChange}
-                required
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <PersonIcon color="action" />
-                    </InputAdornment>
-                  ),
-                }}
-              />
-              <TextField
-                fullWidth
-                label="Price"
-                name="price"
-                type="number"
-                value={formData.price}
-                onChange={handleChange}
-                required
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <AttachMoneyIcon color="action" />
-                    </InputAdornment>
-                  ),
-                }}
-                inputProps={{ 
-                  min: 0, 
-                  step: "0.01",
-                  inputMode: 'decimal'
-                }}
+                multiline
+                rows={4}
               />
 
               <Stack direction="row" spacing={2} sx={{ mt: 2 }}>

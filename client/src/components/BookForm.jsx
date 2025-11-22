@@ -26,7 +26,13 @@ function BookForm() {
   const [formData, setFormData] = useState({
     title: '',
     author: '',
-    price: ''
+    price: '',
+    isbn: '',
+    genre: '',
+    publicationYear: '',
+    publisher: '',
+    pages: '',
+    description: ''
   });
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
@@ -81,8 +87,8 @@ function BookForm() {
             p: 4,
             borderRadius: 2,
             bgcolor: 'background.paper',
-            width: '45%',
-            minWidth: '400px',
+            flex: 1,
+            maxWidth: '900px',
             height: 'fit-content',
             boxShadow: theme => `0 2px 24px ${theme.palette.mode === 'dark' 
               ? 'rgba(0,0,0,0.2)' 
@@ -106,53 +112,122 @@ function BookForm() {
           </Box>
 
           <Stack spacing={3}>
+            {/* Row 1: Title and Author */}
+            <Box sx={{ display: 'flex', gap: 2 }}>
+              <TextField
+                required
+                fullWidth
+                label="Book Title"
+                name="title"
+                value={formData.title}
+                onChange={handleChange}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <TitleIcon />
+                    </InputAdornment>
+                  ),
+                }}
+              />
+
+              <TextField
+                required
+                fullWidth
+                label="Author"
+                name="author"
+                value={formData.author}
+                onChange={handleChange}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <PersonIcon />
+                    </InputAdornment>
+                  ),
+                }}
+              />
+            </Box>
+
+            {/* Row 2: Genre and ISBN */}
+            <Box sx={{ display: 'flex', gap: 2 }}>
+              <TextField
+                fullWidth
+                label="Genre (Optional)"
+                name="genre"
+                value={formData.genre}
+                onChange={handleChange}
+                placeholder="e.g., Fiction, Science, Biography"
+              />
+
+              <TextField
+                fullWidth
+                label="ISBN (Optional)"
+                name="isbn"
+                value={formData.isbn}
+                onChange={handleChange}
+                placeholder="e.g., 978-3-16-148410-0"
+              />
+            </Box>
+
+            {/* Row 3: Price, Year, Pages */}
+            <Box sx={{ display: 'flex', gap: 2 }}>
+              <TextField
+                required
+                fullWidth
+                label="Price"
+                name="price"
+                type="number"
+                value={formData.price}
+                onChange={handleChange}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <AttachMoneyIcon />
+                    </InputAdornment>
+                  ),
+                }}
+              />
+
+              <TextField
+                fullWidth
+                label="Publication Year (Optional)"
+                name="publicationYear"
+                type="number"
+                value={formData.publicationYear}
+                onChange={handleChange}
+                placeholder="e.g., 2023"
+              />
+
+              <TextField
+                fullWidth
+                label="Pages (Optional)"
+                name="pages"
+                type="number"
+                value={formData.pages}
+                onChange={handleChange}
+                placeholder="e.g., 320"
+              />
+            </Box>
+
+            {/* Row 4: Publisher */}
             <TextField
-              required
               fullWidth
-              label="Book Title"
-              name="title"
-              value={formData.title}
+              label="Publisher (Optional)"
+              name="publisher"
+              value={formData.publisher}
               onChange={handleChange}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <TitleIcon />
-                  </InputAdornment>
-                ),
-              }}
+              placeholder="e.g., Penguin Random House"
             />
 
+            {/* Row 5: Description */}
             <TextField
-              required
               fullWidth
-              label="Author"
-              name="author"
-              value={formData.author}
+              label="Description (Optional)"
+              name="description"
+              value={formData.description}
               onChange={handleChange}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <PersonIcon />
-                  </InputAdornment>
-                ),
-              }}
-            />
-
-            <TextField
-              required
-              fullWidth
-              label="Price"
-              name="price"
-              type="number"
-              value={formData.price}
-              onChange={handleChange}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <AttachMoneyIcon />
-                  </InputAdornment>
-                ),
-              }}
+              multiline
+              rows={4}
+              placeholder="Brief summary or notes about this book..."
             />
 
             {error && (
@@ -180,66 +255,6 @@ function BookForm() {
             >
               Add Book
             </Button>
-          </Stack>
-        </Paper>
-
-        <Paper
-          elevation={2}
-          sx={{ 
-            p: 4,
-            borderRadius: 2,
-            bgcolor: 'background.paper',
-            width: '45%',
-            minWidth: '400px',
-            height: 'fit-content',
-            boxShadow: theme => `0 2px 24px ${theme.palette.mode === 'dark' 
-              ? 'rgba(0,0,0,0.2)' 
-              : 'rgba(0,0,0,0.08)'}`,
-            transition: 'box-shadow 0.3s ease-in-out',
-            '&:hover': {
-              boxShadow: theme => `0 4px 32px ${theme.palette.mode === 'dark'
-                ? 'rgba(0,0,0,0.3)'
-                : 'rgba(0,0,0,0.12)'}`
-            }
-          }}
-        >
-          <Box sx={{ textAlign: 'center', mb: 4 }}>
-            <MenuBookIcon sx={{ fontSize: 64, color: 'primary.light', mb: 2 }} />
-            <Typography variant="h4" component="h2" gutterBottom fontWeight="bold">
-              Book Guidelines
-            </Typography>
-            <Typography variant="body1" color="text.secondary">
-              Tips for adding a new book to your collection
-            </Typography>
-          </Box>
-
-          <Stack spacing={3}>
-            <Box>
-              <Typography variant="h6" gutterBottom color="primary">
-                Book Title
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                Enter the complete title as it appears on the book cover. Include subtitle if present.
-              </Typography>
-            </Box>
-
-            <Box>
-              <Typography variant="h6" gutterBottom color="primary">
-                Author Name
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                Use the author's full name. For multiple authors, separate with commas.
-              </Typography>
-            </Box>
-
-            <Box>
-              <Typography variant="h6" gutterBottom color="primary">
-                Price
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                Enter the current market price or your purchase price in dollars.
-              </Typography>
-            </Box>
           </Stack>
         </Paper>
       </Box>
