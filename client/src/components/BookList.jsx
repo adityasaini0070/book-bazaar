@@ -6,7 +6,6 @@ import {
   Typography, 
   CardActions, 
   Button,
-  IconButton,
   Dialog,
   DialogTitle,
   DialogContent,
@@ -23,16 +22,67 @@ import {
   Edit as EditIcon,
   MenuBook as MenuBookIcon,
   Person as PersonIcon,
-  LocalOffer as LocalOfferIcon
+  LocalOffer as LocalOfferIcon,
+  Search as SearchIcon,
+  FilterList as FilterListIcon
 } from '@mui/icons-material';
 import { getAllBooks, deleteBook } from '../api';
 
 function BookList() {
   const [books, setBooks] = useState([]);
+  const [filteredBooks, setFilteredBooks] = useState([]);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [bookToDelete, setBookToDelete] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedGenre, setSelectedGenre] = useState('all');
+  const [sortBy, setSortBy] = useState('newest');
+
+  // Filter and sort books
+  useEffect(() => {
+    let result = [...books];
+
+    // Filter by search term
+    if (searchTerm) {
+      result = result.filter(
+        book =>
+          book.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          book.author.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+
+    // Filter by genre
+    if (selectedGenre !== 'all') {
+      result = result.filter(book => book.genre === selectedGenre);
+    }
+
+    // Sort books
+    switch (sortBy) {
+      case 'newest':
+        result.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+        break;
+      case 'oldest':
+        result.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+        break;
+      case 'price-low':
+        result.sort((a, b) => parseFloat(a.price) - parseFloat(b.price));
+        break;
+      case 'price-high':
+        result.sort((a, b) => parseFloat(b.price) - parseFloat(a.price));
+        break;
+      case 'title':
+        result.sort((a, b) => a.title.localeCompare(b.title));
+        break;
+      default:
+        break;
+    }
+
+    setFilteredBooks(result);
+  }, [books, searchTerm, selectedGenre, sortBy]);
+
+  // Get unique genres for filter
+  const genres = ['all', ...new Set(books.map(b => b.genre).filter(Boolean))];
 
   const fetchBooks = async () => {
     try {
@@ -46,6 +96,7 @@ function BookList() {
           price: typeof book.price === 'number' ? book.price : parseFloat(book.price) || 0
         }));
         setBooks(validatedBooks);
+        setFilteredBooks(validatedBooks);
         setError(null);
       } else {
         throw new Error('Invalid response format');
@@ -160,9 +211,117 @@ function BookList() {
         </Typography>
       </Box>
 
+      {/* Search and Filter Section */}
+      <Paper 
+        elevation={2}
+        sx={{ 
+          p: 3, 
+          mb: 4, 
+          width: '100%', 
+          maxWidth: '1200px',
+          borderRadius: 2
+        }}
+      >
+        <Grid container spacing={2} alignItems="center">
+          {/* Search Bar */}
+          <Grid item xs={12} md={5}>
+            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+              <SearchIcon sx={{ mr: 1, color: 'text.secondary' }} />
+              <input
+                type="text"
+                placeholder="Search by title or author..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '10px 12px',
+                  fontSize: '14px',
+                  border: '1px solid #ddd',
+                  borderRadius: '4px',
+                  outline: 'none',
+                  fontFamily: 'inherit'
+                }}
+              />
+            </Box>
+          </Grid>
+
+          {/* Genre Filter */}
+          <Grid item xs={12} sm={6} md={3}>
+            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+              <FilterListIcon sx={{ mr: 1, color: 'text.secondary' }} />
+              <select
+                value={selectedGenre}
+                onChange={(e) => setSelectedGenre(e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '10px 12px',
+                  fontSize: '14px',
+                  border: '1px solid #ddd',
+                  borderRadius: '4px',
+                  outline: 'none',
+                  fontFamily: 'inherit',
+                  cursor: 'pointer'
+                }}
+              >
+                {genres.map((genre) => (
+                  <option key={genre} value={genre}>
+                    {genre === 'all' ? 'All Genres' : genre}
+                  </option>
+                ))}
+              </select>
+            </Box>
+          </Grid>
+
+          {/* Sort Options */}
+          <Grid item xs={12} sm={6} md={4}>
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+              style={{
+                width: '100%',
+                padding: '10px 12px',
+                fontSize: '14px',
+                border: '1px solid #ddd',
+                borderRadius: '4px',
+                outline: 'none',
+                fontFamily: 'inherit',
+                cursor: 'pointer'
+              }}
+            >
+              <option value="newest">Newest First</option>
+              <option value="oldest">Oldest First</option>
+              <option value="price-low">Price: Low to High</option>
+              <option value="price-high">Price: High to Low</option>
+              <option value="title">Title: A to Z</option>
+            </select>
+          </Grid>
+        </Grid>
+
+        {/* Results Count */}
+        <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
+          Showing {filteredBooks.length} of {books.length} books
+        </Typography>
+      </Paper>
+
       <Box sx={{ width: '100%', maxWidth: '1200px' }}>
-        <Grid container spacing={3} sx={{ display: 'flex', justifyContent: 'center' }}>
-          {books.map((book, index) => (
+        {filteredBooks.length === 0 ? (
+          <Paper 
+            sx={{ 
+              p: 4, 
+              textAlign: 'center',
+              borderRadius: 2,
+            }}
+          >
+            <Typography variant="h6" gutterBottom>
+              No books match your search
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              Try adjusting your filters or search terms
+            </Typography>
+          </Paper>
+        ) : (
+          <Grid container spacing={3} sx={{ display: 'flex', justifyContent: 'center' }}>
+            {filteredBooks.map((book, index) => (
           <Grid item xs={12} sm={6} md={4} key={book.id}>
             <Fade in timeout={300} style={{ transitionDelay: `${index * 100}ms` }}>
               <Card
@@ -250,7 +409,8 @@ function BookList() {
             </Fade>
           </Grid>
         ))}
-        </Grid>
+          </Grid>
+        )}
       </Box>
 
       <Dialog
