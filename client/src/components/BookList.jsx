@@ -205,17 +205,14 @@ function BookList() {
     <Box 
       sx={{ 
         width: '100%',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center'
+        px: 3,
+        py: 2
       }}
     >
       <Box 
         sx={{ 
           mb: 4,
-          textAlign: 'center',
-          maxWidth: '800px',
-          width: '100%'
+          textAlign: 'center'
         }}
       >
         <Typography variant="h4" component="h1" gutterBottom fontWeight="bold">
