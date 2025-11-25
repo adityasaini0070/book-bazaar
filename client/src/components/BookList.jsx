@@ -30,12 +30,10 @@ import {
   TrendingUp as TrendingUpIcon,
   Category as CategoryIcon,
   CalendarToday as CalendarTodayIcon,
-  AutoStories as AutoStoriesIcon,
-  Summarize as SummarizeIcon
+  AutoStories as AutoStoriesIcon
 } from '@mui/icons-material';
 import { getAllBooks, deleteBook } from '../api';
 import AIRecommendations from './AIRecommendations';
-import BookSummary from './BookSummary';
 
 function BookList() {
   const [books, setBooks] = useState([]);
@@ -47,8 +45,6 @@ function BookList() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedGenre, setSelectedGenre] = useState('all');
   const [sortBy, setSortBy] = useState('newest');
-  const [summaryDialogOpen, setSummaryDialogOpen] = useState(false);
-  const [selectedBook, setSelectedBook] = useState(null);
 
   // Filter and sort books
   useEffect(() => {
@@ -154,10 +150,7 @@ function BookList() {
     }
   };
 
-  const handleSummaryClick = (book) => {
-    setSelectedBook(book);
-    setSummaryDialogOpen(true);
-  };
+
 
   if (loading) {
     return (
@@ -411,20 +404,11 @@ function BookList() {
                     
                     <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mt: 2 }}>
                       <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                        <LocalOfferIcon sx={{ fontSize: 20, color: 'primary.main', mr: 1 }} />
+                      <Box>
                         <Typography variant="h6" color="primary.main" fontWeight="bold">
                           ${parseFloat(book.price).toFixed(2)}
                         </Typography>
                       </Box>
-                      <Tooltip title="AI Summary">
-                        <IconButton
-                          size="small"
-                          color="primary"
-                          onClick={() => handleSummaryClick(book)}
-                        >
-                          <SummarizeIcon />
-                        </IconButton>
-                      </Tooltip>
                     </Box>
                   </Box>
                 </CardContent>
@@ -596,13 +580,6 @@ function BookList() {
       </Dialog>
 
       {/* Book Summary Dialog */}
-      {selectedBook && (
-        <BookSummary
-          book={selectedBook}
-          open={summaryDialogOpen}
-          onClose={() => setSummaryDialogOpen(false)}
-        />
-      )}
     </Box>
   );
 }
