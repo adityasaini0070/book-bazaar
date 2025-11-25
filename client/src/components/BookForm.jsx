@@ -31,7 +31,6 @@ function BookForm() {
     title: '',
     author: '',
     price: '',
-    isbn: '',
     genre: '',
     publicationYear: '',
     publisher: '',
@@ -40,8 +39,6 @@ function BookForm() {
   });
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
-  const [isbnLoading, setIsbnLoading] = useState(false);
-  const [isbnError, setIsbnError] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const [showSearchResults, setShowSearchResults] = useState(false);
@@ -95,7 +92,6 @@ function BookForm() {
       title: volumeInfo.title || '',
       author: volumeInfo.authors ? volumeInfo.authors.join(', ') : '',
       price: '',
-      isbn: volumeInfo.industryIdentifiers?.[0]?.identifier || '',
       genre: volumeInfo.categories ? volumeInfo.categories[0] : '',
       publicationYear: volumeInfo.publishedDate ? volumeInfo.publishedDate.substring(0, 4) : '',
       publisher: volumeInfo.publisher || '',
@@ -107,45 +103,7 @@ function BookForm() {
     setSearchQuery('');
   };
 
-  const lookupISBN = async () => {
-    if (!formData.isbn || formData.isbn.trim() === '') {
-      setIsbnError('Please enter an ISBN first');
-      return;
-    }
 
-    setIsbnLoading(true);
-    setIsbnError('');
-    
-    try {
-      const cleanISBN = formData.isbn.replace(/[-\s]/g, '');
-      const response = await fetch(`https://www.googleapis.com/books/v1/volumes?q=isbn:${cleanISBN}`);
-      const data = await response.json();
-
-      if (data.items && data.items.length > 0) {
-        const book = data.items[0].volumeInfo;
-        
-        setFormData(prev => ({
-          ...prev,
-          title: book.title || prev.title,
-          author: book.authors ? book.authors.join(', ') : prev.author,
-          genre: book.categories ? book.categories[0] : prev.genre,
-          publicationYear: book.publishedDate ? book.publishedDate.substring(0, 4) : prev.publicationYear,
-          publisher: book.publisher || prev.publisher,
-          pages: book.pageCount?.toString() || prev.pages,
-          description: book.description || prev.description
-        }));
-        
-        setIsbnError('');
-      } else {
-        setIsbnError('No book found with this ISBN');
-      }
-    } catch (err) {
-      setIsbnError('Failed to fetch book details. Please try again.');
-      console.error('ISBN lookup error:', err);
-    } finally {
-      setIsbnLoading(false);
-    }
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -344,50 +302,15 @@ function BookForm() {
               />
             </Box>
 
-            {/* Row 2: Genre and ISBN with Lookup */}
-            <Box sx={{ display: 'flex', gap: 2 }}>
-              <TextField
-                fullWidth
-                label="Genre (Optional)"
-                name="genre"
-                value={formData.genre}
-                onChange={handleChange}
-                placeholder="e.g., Fiction, Science, Biography"
-              />
-
-              <TextField
-                fullWidth
-                label="ISBN (Optional)"
-                name="isbn"
-                value={formData.isbn}
-                onChange={handleChange}
-                placeholder="e.g., 978-3-16-148410-0"
-                error={!!isbnError}
-                helperText={isbnError}
-                InputProps={{
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      <Tooltip title="Auto-fill details from ISBN">
-                        <IconButton 
-                          onClick={lookupISBN}
-                          disabled={isbnLoading || !formData.isbn}
-                          color="primary"
-                        >
-                          {isbnLoading ? <CircularProgress size={24} /> : <SearchIcon />}
-                        </IconButton>
-                      </Tooltip>
-                    </InputAdornment>
-                  ),
-                }}
-              />
-            </Box>
-            
-            {/* ISBN Lookup Info */}
-            {!isbnError && formData.isbn && (
-              <Alert severity="info" sx={{ mt: -1 }}>
-                💡 Click the search icon to auto-fill book details from ISBN
-              </Alert>
-            )}
+            {/* Row 2: Genre */}
+            <TextField
+              fullWidth
+              label="Genre (Optional)"
+              name="genre"
+              value={formData.genre}
+              onChange={handleChange}
+              placeholder="e.g., Fiction, Science, Biography"
+            />
 
             {/* Row 3: Price, Year, Pages */}
             <Box sx={{ display: 'flex', gap: 2 }}>
