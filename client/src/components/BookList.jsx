@@ -333,7 +333,7 @@ function BookList() {
         ) : (
           <Grid container spacing={3}>
             {/* Books Grid */}
-            <Grid item xs={12} md={9}>
+            <Grid item xs={12} md={12} sx={{ pr: { md: '320px' } }}>
               <Grid container spacing={3}>
                 {filteredBooks.map((book, index) => (
           <Grid item xs={12} sm={6} md={4} key={book.id}>
@@ -427,17 +427,22 @@ function BookList() {
               </Grid>
             </Grid>
 
-            {/* Statistics Dashboard */}
-            <Grid item xs={12} md={3}>
-              <Paper 
-                elevation={3}
-                sx={{ 
-                  p: 3, 
-                  borderRadius: 2,
-                  position: 'sticky',
-                  top: 20,
-                  bgcolor: 'background.paper'
-                }}
+            {/* Statistics Dashboard - Fixed in corner */}
+            <Paper 
+              elevation={3}
+              sx={{ 
+                p: 3, 
+                borderRadius: 2,
+                position: 'fixed',
+                top: 100,
+                right: 24,
+                width: '280px',
+                maxHeight: 'calc(100vh - 120px)',
+                overflowY: 'auto',
+                bgcolor: 'background.paper',
+                zIndex: 100,
+                display: { xs: 'none', md: 'block' }
+              }}
               >
                 <Typography variant="h6" gutterBottom fontWeight="bold" mb={3}>
                   📊 Collection Stats
@@ -526,7 +531,6 @@ function BookList() {
                   </Box>
                 </Box>
               </Paper>
-            </Grid>
           </Grid>
         )}
       </Box>
