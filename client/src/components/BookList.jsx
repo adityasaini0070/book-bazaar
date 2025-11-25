@@ -340,8 +340,7 @@ function BookList() {
             <Fade in timeout={300} style={{ transitionDelay: `${index * 100}ms` }}>
               <Card
                 sx={{
-                  height: '100%',
-                  minHeight: '320px',
+                  height: '400px',
                   display: 'flex',
                   flexDirection: 'column',
                   position: 'relative',
