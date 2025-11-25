@@ -1,31 +1,48 @@
-# Book Bazaar
+# Book Bazaar 📚
 
-A full-stack web application for managing a book inventory system. Built with React, Node.js, Express, and PostgreSQL.
+A modern full-stack web application for managing your personal book collection with AI-powered features. Built with React, Node.js, Express, and PostgreSQL.
 
-## Features
+## ✨ Features
 
-- View all books in the inventory
-- Add new books with title, author, and price
-- Edit existing book details
-- Delete books
-- Responsive UI with Material-UI
-- PostgreSQL database for persistent storage
+### Core Functionality
+- 📖 View and manage your complete book collection
+- ➕ Add new books with comprehensive details (9 fields including genre, publisher, pages, description)
+- ✏️ Edit existing book information
+- 🗑️ Remove books from your collection
+- 🔍 Advanced search and filter by title, author, or genre
+- 📊 Real-time collection statistics dashboard
+- 🌓 Dark/Light theme toggle
 
-## Tech Stack
+### AI-Powered Features
+- 🤖 **AI Book Recommendations** - Get personalized book suggestions based on your collection using Google Books API
+- 📄 **AI Summary Generator** - Generate comprehensive summaries for any book with key points, highlights, and reading insights
+- 🎯 **Smart Book Search** - Quick book lookup by title or author with auto-fill from Google Books database
 
-- **Frontend:**
-  - React
-  - Material-UI
-  - React Router
-  - Axios
-  - Vite
+### Enhanced User Experience
+- 📱 Fully responsive design for all devices
+- 🎨 Beautiful Material-UI components with custom styling
+- ⚡ Fast and intuitive interface
+- 💾 Persistent data storage with PostgreSQL
+- 🔄 Real-time updates and synchronization
 
-- **Backend:**
-  - Node.js
-  - Express
-  - PostgreSQL
-  - CORS
-  - dotenv
+## 🛠️ Tech Stack
+
+### Frontend
+- **React 19.1.0** - Modern UI library
+- **Material-UI 7.2.0** - Comprehensive component library
+- **React Router** - Client-side routing
+- **Axios** - HTTP client
+- **Vite 7.0.4** - Lightning-fast build tool
+
+### Backend
+- **Node.js** - JavaScript runtime
+- **Express.js** - Web application framework
+- **PostgreSQL** - Robust relational database
+- **CORS** - Cross-origin resource sharing
+- **dotenv** - Environment variable management
+
+### External APIs
+- **Google Books API** - Book metadata and recommendations
 
 ## Setup
 
@@ -55,10 +72,28 @@ npm install
 ```
 
 3. Set up the database:
-- Create a PostgreSQL database named 'book_bazaar'
-- Copy `.env.example` to `.env` in the server directory and update with your database credentials
+```bash
+# Create PostgreSQL database
+createdb book_bazaar
 
-4. Start the application:
+# Or using psql
+psql -U postgres
+CREATE DATABASE book_bazaar;
+```
+
+4. Configure environment variables:
+```bash
+# Create .env file in server directory
+cd server
+echo "DB_USER=postgres
+DB_PASSWORD=your_password
+DB_HOST=localhost
+DB_PORT=5432
+DB_NAME=book_bazaar
+PORT=3001" > .env
+```
+
+5. Start the application:
 
 ```bash
 # Start backend (from server directory)
@@ -72,13 +107,32 @@ The application will be available at:
 - Frontend: http://localhost:5173
 - Backend: http://localhost:3001
 
-## API Endpoints
+## 📡 API Endpoints
 
-- `GET /api/books` - Get all books
-- `GET /api/books/:id` - Get a specific book
-- `POST /api/books` - Create a new book
-- `PUT /api/books/:id` - Update a book
-- `DELETE /api/books/:id` - Delete a book
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/books` | Retrieve all books |
+| GET | `/api/books/:id` | Get a specific book by ID |
+| POST | `/api/books` | Add a new book to collection |
+| PUT | `/api/books/:id` | Update book details |
+| DELETE | `/api/books/:id` | Remove a book from collection |
+
+### Book Schema
+```javascript
+{
+  id: INTEGER,
+  title: STRING (required),
+  author: STRING (required),
+  price: DECIMAL (required),
+  isbn: STRING,
+  genre: STRING,
+  publication_year: STRING,
+  publisher: STRING,
+  pages: INTEGER,
+  description: TEXT,
+  created_at: TIMESTAMP
+}
+```
 
 ## Environment Variables
 
@@ -93,14 +147,44 @@ DB_NAME=book_bazaar
 PORT=3001
 ```
 
-## Contributing
+## 🎯 Key Highlights
+
+- **Full-width responsive layout** optimized for all screen sizes
+- **Smart search integration** with Google Books API for easy book entry
+- **Real-time statistics** showing collection value, total pages, genre distribution
+- **AI-powered recommendations** personalized to your reading preferences
+- **Book summary generator** with AI-generated insights
+- **Modern UI/UX** with smooth animations and transitions
+- **Theme customization** with dark/light mode support
+
+## 🚀 Future Enhancements
+
+- [ ] User authentication and authorization
+- [ ] Multiple user collections
+- [ ] Book lending/borrowing tracking
+- [ ] Reading progress tracker
+- [ ] Book reviews and ratings
+- [ ] Export collection to CSV/PDF
+- [ ] Social features (share books, recommendations)
+- [ ] Mobile app version
+
+## 🤝 Contributing
 
 1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/YourFeature`)
-3. Commit your changes (`git commit -m 'Add some feature'`)
-4. Push to the branch (`git push origin feature/YourFeature`)
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
 
-## License
+## 📝 License
 
 ISC
+
+## 👨‍💻 Author
+
+**Aditya Saini**
+- GitHub: [@adityasaini0070](https://github.com/adityasaini0070)
+
+---
+
+⭐ Star this repo if you find it helpful!
