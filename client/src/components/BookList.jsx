@@ -401,13 +401,14 @@ function BookList() {
                         {book.description}
                       </Typography>
                     )}
-                    
-                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mt: 2 }}>
-                      <Typography variant="h6" color="primary.main" fontWeight="bold">
-                        ${parseFloat(book.price).toFixed(2)}
-                      </Typography>
-                    </Box>
-                  </CardContent>
+                  </Box>
+                  
+                  <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mt: 2 }}>
+                    <Typography variant="h6" color="primary.main" fontWeight="bold">
+                      ${parseFloat(book.price).toFixed(2)}
+                    </Typography>
+                  </Box>
+                </CardContent>
                 <CardActions sx={{ justifyContent: 'flex-end', p: 2, pt: 0 }}>
                   <Button
                     size="small"
