@@ -42,6 +42,10 @@ function BookForm() {
   const [success, setSuccess] = useState(false);
   const [isbnLoading, setIsbnLoading] = useState(false);
   const [isbnError, setIsbnError] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState([]);
+  const [showSearchResults, setShowSearchResults] = useState(false);
+  const [searching, setSearching] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -49,6 +53,58 @@ function BookForm() {
       ...prev,
       [name]: value
     }));
+  };
+
+  const searchBooks = async () => {
+    if (!searchQuery || searchQuery.trim() === '') {
+      return;
+    }
+
+    setSearching(true);
+    
+    try {
+      const response = await fetch(`https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(searchQuery)}&maxResults=5`);
+      const data = await response.json();
+
+      if (data.items && data.items.length > 0) {
+        const results = data.items.map(item => ({
+          id: item.id,
+          title: item.volumeInfo.title,
+          authors: item.volumeInfo.authors?.join(', ') || 'Unknown Author',
+          publishedDate: item.volumeInfo.publishedDate,
+          thumbnail: item.volumeInfo.imageLinks?.thumbnail,
+          volumeInfo: item.volumeInfo
+        }));
+        setSearchResults(results);
+        setShowSearchResults(true);
+      } else {
+        setSearchResults([]);
+      }
+    } catch (err) {
+      console.error('Search error:', err);
+      setSearchResults([]);
+    } finally {
+      setSearching(false);
+    }
+  };
+
+  const selectBook = (book) => {
+    const volumeInfo = book.volumeInfo;
+    
+    setFormData({
+      title: volumeInfo.title || '',
+      author: volumeInfo.authors ? volumeInfo.authors.join(', ') : '',
+      price: '',
+      isbn: volumeInfo.industryIdentifiers?.[0]?.identifier || '',
+      genre: volumeInfo.categories ? volumeInfo.categories[0] : '',
+      publicationYear: volumeInfo.publishedDate ? volumeInfo.publishedDate.substring(0, 4) : '',
+      publisher: volumeInfo.publisher || '',
+      pages: volumeInfo.pageCount?.toString() || '',
+      description: volumeInfo.description || ''
+    });
+
+    setShowSearchResults(false);
+    setSearchQuery('');
   };
 
   const lookupISBN = async () => {
@@ -153,6 +209,104 @@ function BookForm() {
               Enter the details of your book below
             </Typography>
           </Box>
+
+          {/* Book Search Section */}
+          <Paper 
+            elevation={1} 
+            sx={{ 
+              p: 3, 
+              mb: 3, 
+              bgcolor: 'primary.50',
+              borderLeft: '4px solid',
+              borderColor: 'primary.main'
+            }}
+          >
+            <Typography variant="h6" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <SearchIcon /> Quick Search
+            </Typography>
+            <Typography variant="body2" color="text.secondary" mb={2}>
+              Search for a book by title or author to auto-fill all details
+            </Typography>
+            
+            <Box sx={{ display: 'flex', gap: 2, position: 'relative' }}>
+              <TextField
+                fullWidth
+                placeholder="e.g., Harry Potter, 1984, or J.K. Rowling"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyPress={(e) => e.key === 'Enter' && searchBooks()}
+              />
+              <Button 
+                variant="contained" 
+                onClick={searchBooks}
+                disabled={searching || !searchQuery}
+                sx={{ minWidth: '120px' }}
+              >
+                {searching ? <CircularProgress size={24} /> : 'Search'}
+              </Button>
+            </Box>
+
+            {/* Search Results Dropdown */}
+            {showSearchResults && (
+              <Paper 
+                elevation={4}
+                sx={{ 
+                  mt: 2, 
+                  maxHeight: '400px', 
+                  overflowY: 'auto',
+                  border: '1px solid',
+                  borderColor: 'divider'
+                }}
+              >
+                {searchResults.length > 0 ? (
+                  searchResults.map((book) => (
+                    <Box
+                      key={book.id}
+                      onClick={() => selectBook(book)}
+                      sx={{
+                        p: 2,
+                        display: 'flex',
+                        gap: 2,
+                        cursor: 'pointer',
+                        borderBottom: '1px solid',
+                        borderColor: 'divider',
+                        '&:hover': {
+                          bgcolor: 'action.hover'
+                        }
+                      }}
+                    >
+                      {book.thumbnail && (
+                        <img 
+                          src={book.thumbnail} 
+                          alt={book.title}
+                          style={{ width: '60px', height: '90px', objectFit: 'cover', borderRadius: '4px' }}
+                        />
+                      )}
+                      <Box sx={{ flex: 1 }}>
+                        <Typography variant="subtitle1" fontWeight="bold">
+                          {book.title}
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary">
+                          {book.authors}
+                        </Typography>
+                        {book.publishedDate && (
+                          <Typography variant="caption" color="text.secondary">
+                            Published: {book.publishedDate}
+                          </Typography>
+                        )}
+                      </Box>
+                    </Box>
+                  ))
+                ) : (
+                  <Box sx={{ p: 3, textAlign: 'center' }}>
+                    <Typography color="text.secondary">
+                      No results found. Try a different search term.
+                    </Typography>
+                  </Box>
+                )}
+              </Paper>
+            )}
+          </Paper>
 
           <Stack spacing={3}>
             {/* Row 1: Title and Author */}
