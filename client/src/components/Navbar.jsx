@@ -13,7 +13,7 @@ function Navbar({ mode, onToggleTheme }) {
       borderBottom: '1px solid',
       borderColor: 'divider',
     }}>
-      <Container maxWidth="lg">
+      <Box sx={{ px: 3 }}>
         <Toolbar sx={{ py: 1 }}>
           <Box sx={{ 
             display: 'flex', 
@@ -66,7 +66,7 @@ function Navbar({ mode, onToggleTheme }) {
             Add Book
           </Button>
         </Toolbar>
-      </Container>
+      </Box>
     </AppBar>
   );
 }
