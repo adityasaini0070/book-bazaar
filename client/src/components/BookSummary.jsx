@@ -25,34 +25,112 @@ function BookSummary({ book, open, onClose }) {
   const [summary, setSummary] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  const generateSummary = () => {
+  const generateSummary = async () => {
     setLoading(true);
     
-    // Simulate AI summary generation
-    setTimeout(() => {
-      const summaries = {
-        default: {
-          overview: `This ${book.genre || 'book'} by ${book.author} explores fascinating themes and delivers a compelling narrative. Published in ${book.publication_year || 'recent years'}, it has captivated readers with its unique perspective and engaging storytelling.`,
+    try {
+      // Fetch book details from Google Books API
+      const searchQuery = encodeURIComponent(`${book.title} ${book.author}`);
+      const response = await fetch(`https://www.googleapis.com/books/v1/volumes?q=${searchQuery}&maxResults=1`);
+      const data = await response.json();
+
+      if (data.items && data.items.length > 0) {
+        const bookInfo = data.items[0].volumeInfo;
+        const description = bookInfo.description || book.description || '';
+        
+        // Generate genre-specific content
+        const genreInsights = {
+          'Fiction': ['Complex character arcs', 'Immersive world-building', 'Emotional depth', 'Plot twists and turns'],
+          'Science Fiction': ['Futuristic concepts', 'Technological innovations', 'Speculative scenarios', 'Scientific accuracy'],
+          'Fantasy': ['Magical elements', 'Epic world-building', 'Heroic journeys', 'Mythological themes'],
+          'Mystery': ['Intricate plot construction', 'Clues and red herrings', 'Suspenseful pacing', 'Satisfying resolution'],
+          'Romance': ['Emotional connections', 'Character chemistry', 'Relationship development', 'Heartfelt moments'],
+          'Self-Help': ['Practical strategies', 'Actionable advice', 'Real-world examples', 'Transformative insights'],
+          'Biography': ['Personal journey', 'Historical context', 'Life lessons', 'Inspiring story'],
+          'History': ['Historical accuracy', 'Cultural context', 'Important events', 'Legacy and impact'],
+          'Nature': ['Natural wonders', 'Environmental insights', 'Scientific observations', 'Connection to nature']
+        };
+
+        const genre = book.genre || bookInfo.categories?.[0] || 'General';
+        const keyPoints = genreInsights[genre] || genreInsights['Fiction'];
+
+        // Extract meaningful highlights from description
+        const highlights = [];
+        if (bookInfo.pageCount) highlights.push(`📄 ${bookInfo.pageCount} pages`);
+        if (bookInfo.publishedDate) highlights.push(`📅 Published ${bookInfo.publishedDate}`);
+        if (bookInfo.publisher) highlights.push(`🏢 ${bookInfo.publisher}`);
+        if (bookInfo.averageRating) highlights.push(`⭐ ${bookInfo.averageRating}/5 rating`);
+
+        // Generate audience description based on genre and maturity
+        const maturityRating = bookInfo.maturityRating || 'NOT_MATURE';
+        const audienceMap = {
+          'Fiction': 'fiction enthusiasts who appreciate nuanced storytelling',
+          'Science Fiction': 'sci-fi fans who enjoy thought-provoking concepts',
+          'Fantasy': 'fantasy lovers seeking immersive adventures',
+          'Mystery': 'mystery readers who love solving puzzles',
+          'Romance': 'romance readers looking for emotional connections',
+          'Self-Help': 'individuals seeking personal growth and development',
+          'Biography': 'readers interested in inspiring life stories',
+          'History': 'history buffs and curious learners',
+          'Nature': 'nature enthusiasts and environmental advocates'
+        };
+
+        setSummary({
+          overview: description.substring(0, 400) + (description.length > 400 ? '...' : '') || 
+                   `"${book.title}" by ${book.author} is a compelling ${genre.toLowerCase()} that offers readers ${genre === 'Self-Help' ? 'practical insights and transformative guidance' : 'an engaging narrative experience'}. ${book.publication_year ? `Published in ${book.publication_year}, ` : ''}This work stands out for its ${genre === 'Fiction' ? 'character development and plot structure' : genre === 'Science Fiction' ? 'imaginative concepts' : 'unique approach to the subject matter'}.`,
+          keyPoints: keyPoints,
+          highlights: highlights.length > 0 ? highlights : [
+            `📚 Genre: ${genre}`,
+            `✨ ${book.pages || 300} pages`,
+            `💡 By ${book.author}`,
+            `🎯 ${maturityRating === 'MATURE' ? 'Adult readers' : 'General audience'}`
+          ],
+          audience: `Perfect for ${audienceMap[genre] || 'readers who enjoy quality literature'}.${maturityRating === 'MATURE' ? ' Content suitable for mature readers.' : ''}`,
+          readingTime: `Approximately ${Math.ceil((book.pages || bookInfo.pageCount || 300) / 50)} hours`
+        });
+      } else {
+        // Fallback if API doesn't return data
+        setSummary({
+          overview: book.description || `"${book.title}" by ${book.author} is a ${book.genre || 'captivating'} work that offers readers a unique perspective. This book explores important themes and delivers engaging content that resonates with its audience.`,
           keyPoints: [
-            'Engaging narrative style that keeps readers invested',
-            'Well-developed characters with relatable motivations',
-            'Thought-provoking themes that resonate with modern audiences',
-            'Expertly crafted plot with satisfying progression'
+            'Engaging content tailored to the subject matter',
+            'Well-researched and thoughtfully presented',
+            'Accessible writing style for broad appeal',
+            'Valuable insights and perspectives'
           ],
           highlights: [
-            '📚 Rich character development',
-            '🎯 Clear thematic focus',
-            '✨ Memorable storytelling',
-            '💡 Insightful observations'
+            `📚 ${book.genre || 'General'} genre`,
+            `📄 ${book.pages || '300'} pages`,
+            `👤 By ${book.author}`,
+            book.publication_year ? `📅 ${book.publication_year}` : '✨ Contemporary work'
           ],
-          audience: 'Perfect for readers who enjoy thoughtful narratives and compelling character studies.',
+          audience: `Ideal for readers interested in ${book.genre?.toLowerCase() || 'quality literature'}.`,
           readingTime: `Approximately ${Math.ceil((book.pages || 300) / 50)} hours`
-        }
-      };
-
-      setSummary(summaries.default);
+        });
+      }
+    } catch (error) {
+      console.error('Error generating summary:', error);
+      // Fallback summary on error
+      setSummary({
+        overview: book.description || `"${book.title}" by ${book.author} is a noteworthy addition to ${book.genre || 'literature'}.`,
+        keyPoints: [
+          'Thoughtful exploration of subject matter',
+          'Engaging presentation',
+          'Valuable content for readers',
+          'Well-crafted narrative or analysis'
+        ],
+        highlights: [
+          `📚 ${book.genre || 'Book'}`,
+          `✍️ ${book.author}`,
+          `📄 ${book.pages || 'N/A'} pages`,
+          `💰 $${book.price}`
+        ],
+        audience: 'Suitable for interested readers.',
+        readingTime: `Approximately ${Math.ceil((book.pages || 300) / 50)} hours`
+      });
+    } finally {
       setLoading(false);
-    }, 2000);
+    }
   };
 
   const handleOpen = () => {
