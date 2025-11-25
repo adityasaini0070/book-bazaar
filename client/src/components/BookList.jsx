@@ -341,6 +341,7 @@ function BookList() {
               <Card
                 sx={{
                   height: '100%',
+                  minHeight: '320px',
                   display: 'flex',
                   flexDirection: 'column',
                   position: 'relative',
@@ -433,9 +434,14 @@ function BookList() {
                 sx={{ 
                   p: 3, 
                   borderRadius: 2,
-                  position: 'sticky',
-                  top: 20,
-                  bgcolor: 'background.paper'
+                  position: 'fixed',
+                  top: 80,
+                  right: 24,
+                  width: '280px',
+                  maxHeight: 'calc(100vh - 100px)',
+                  overflowY: 'auto',
+                  bgcolor: 'background.paper',
+                  zIndex: 100
                 }}
               >
                 <Typography variant="h6" gutterBottom fontWeight="bold" mb={3}>
