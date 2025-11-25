@@ -40,6 +40,7 @@ const createBooksTable = async () => {
                 publisher VARCHAR(255),
                 pages INTEGER,
                 description TEXT,
+                cover_url TEXT,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );
         `);
