@@ -9,7 +9,10 @@ import {
   Alert,
   Stack,
   InputAdornment,
-  Fade
+  Fade,
+  CircularProgress,
+  IconButton,
+  Tooltip
 } from '@mui/material';
 import { 
   LibraryAdd as LibraryAddIcon,
@@ -17,7 +20,8 @@ import {
   Person as PersonIcon,
   AttachMoney as AttachMoneyIcon,
   ArrowBack as ArrowBackIcon,
-  MenuBook as MenuBookIcon
+  MenuBook as MenuBookIcon,
+  Search as SearchIcon
 } from '@mui/icons-material';
 import { createBook } from '../api';
 
@@ -36,6 +40,8 @@ function BookForm() {
   });
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
+  const [isbnLoading, setIsbnLoading] = useState(false);
+  const [isbnError, setIsbnError] = useState('');
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -43,6 +49,46 @@ function BookForm() {
       ...prev,
       [name]: value
     }));
+  };
+
+  const lookupISBN = async () => {
+    if (!formData.isbn || formData.isbn.trim() === '') {
+      setIsbnError('Please enter an ISBN first');
+      return;
+    }
+
+    setIsbnLoading(true);
+    setIsbnError('');
+    
+    try {
+      const cleanISBN = formData.isbn.replace(/[-\s]/g, '');
+      const response = await fetch(`https://www.googleapis.com/books/v1/volumes?q=isbn:${cleanISBN}`);
+      const data = await response.json();
+
+      if (data.items && data.items.length > 0) {
+        const book = data.items[0].volumeInfo;
+        
+        setFormData(prev => ({
+          ...prev,
+          title: book.title || prev.title,
+          author: book.authors ? book.authors.join(', ') : prev.author,
+          genre: book.categories ? book.categories[0] : prev.genre,
+          publicationYear: book.publishedDate ? book.publishedDate.substring(0, 4) : prev.publicationYear,
+          publisher: book.publisher || prev.publisher,
+          pages: book.pageCount?.toString() || prev.pages,
+          description: book.description || prev.description
+        }));
+        
+        setIsbnError('');
+      } else {
+        setIsbnError('No book found with this ISBN');
+      }
+    } catch (err) {
+      setIsbnError('Failed to fetch book details. Please try again.');
+      console.error('ISBN lookup error:', err);
+    } finally {
+      setIsbnLoading(false);
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -144,7 +190,7 @@ function BookForm() {
               />
             </Box>
 
-            {/* Row 2: Genre and ISBN */}
+            {/* Row 2: Genre and ISBN with Lookup */}
             <Box sx={{ display: 'flex', gap: 2 }}>
               <TextField
                 fullWidth
@@ -162,8 +208,32 @@ function BookForm() {
                 value={formData.isbn}
                 onChange={handleChange}
                 placeholder="e.g., 978-3-16-148410-0"
+                error={!!isbnError}
+                helperText={isbnError}
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <Tooltip title="Auto-fill details from ISBN">
+                        <IconButton 
+                          onClick={lookupISBN}
+                          disabled={isbnLoading || !formData.isbn}
+                          color="primary"
+                        >
+                          {isbnLoading ? <CircularProgress size={24} /> : <SearchIcon />}
+                        </IconButton>
+                      </Tooltip>
+                    </InputAdornment>
+                  ),
+                }}
               />
             </Box>
+            
+            {/* ISBN Lookup Info */}
+            {!isbnError && formData.isbn && (
+              <Alert severity="info" sx={{ mt: -1 }}>
+                💡 Click the search icon to auto-fill book details from ISBN
+              </Alert>
+            )}
 
             {/* Row 3: Price, Year, Pages */}
             <Box sx={{ display: 'flex', gap: 2 }}>
