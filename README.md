@@ -15,7 +15,6 @@ A modern full-stack web application for managing your personal book collection w
 
 ### AI-Powered Features
 - 🤖 **AI Book Recommendations** - Get personalized book suggestions based on your collection using Google Books API
-- 📄 **AI Summary Generator** - Generate comprehensive summaries for any book with key points, highlights, and reading insights
 - 🎯 **Smart Book Search** - Quick book lookup by title or author with auto-fill from Google Books database
 
 ### Enhanced User Experience
@@ -153,7 +152,6 @@ PORT=3001
 - **Smart search integration** with Google Books API for easy book entry
 - **Real-time statistics** showing collection value, total pages, genre distribution
 - **AI-powered recommendations** personalized to your reading preferences
-- **Book summary generator** with AI-generated insights
 - **Modern UI/UX** with smooth animations and transitions
 - **Theme customization** with dark/light mode support
 
