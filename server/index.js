@@ -4,6 +4,8 @@ require('dotenv').config({ path: path.join(__dirname, '.env') });
 const express = require('express');
 const cors = require('cors');
 const { pool, createBooksTable } = require('./db');
+const authRoutes = require('./routes/auth');
+const marketplaceRoutes = require('./routes/marketplace');
 
 const app = express();
 const port = process.env.PORT || 3001;
@@ -13,6 +15,12 @@ app.use(express.json());
 
 // Create books table on server start
 createBooksTable();
+
+// Auth routes
+app.use('/api/auth', authRoutes);
+
+// Marketplace routes
+app.use('/api/marketplace', marketplaceRoutes);
 
 // Get all books
 app.get('/api/books', async (req, res) => {

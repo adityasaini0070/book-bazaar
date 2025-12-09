@@ -1,11 +1,27 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { Container, CssBaseline, ThemeProvider, createTheme, Box } from '@mui/material';
 import { useState, useMemo, useEffect } from 'react';
 import BookList from './components/BookList';
 import BookForm from './components/BookForm';
 import EditBook from './components/EditBook';
+import Login from './components/Login';
+import Register from './components/Register';
+import Marketplace from './components/Marketplace';
+import MyListings from './components/MyListings';
 import Navbar from './components/Navbar';
 import ErrorBoundary from './components/ErrorBoundary';
+import { AuthProvider, useAuth } from './context/AuthContext';
+
+// Protected Route component
+function ProtectedRoute({ children }) {
+  const { isAuthenticated, loading } = useAuth();
+  
+  if (loading) {
+    return null; // Or a loading spinner
+  }
+  
+  return isAuthenticated ? children : <Navigate to="/login" />;
+}
 
 // Theme configuration function
 const getTheme = (mode) => createTheme({
@@ -97,34 +113,62 @@ function App() {
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <Router>
-        <ErrorBoundary>
-          <Navbar mode={mode} onToggleTheme={toggleTheme} />
-          <Box 
-            sx={{ 
-              minHeight: 'calc(100vh - 64px)', // Full height minus navbar
-              width: '100%',
-              backgroundColor: 'background.default'
-            }}
-          >
-            <Routes>
-              <Route path="/" element={
-                <ErrorBoundary>
-                  <BookList />
-                </ErrorBoundary>
-              } />
-              <Route path="/add" element={
-                <ErrorBoundary>
-                  <BookForm />
-                </ErrorBoundary>
+        <AuthProvider>
+          <ErrorBoundary>
+            <Navbar mode={mode} onToggleTheme={toggleTheme} />
+            <Box 
+              sx={{ 
+                minHeight: 'calc(100vh - 64px)', // Full height minus navbar
+                width: '100%',
+                backgroundColor: 'background.default'
+              }}
+            >
+              <Routes>
+                <Route path="/" element={
+                  <ErrorBoundary>
+                    <BookList />
+                  </ErrorBoundary>
+                } />
+                <Route path="/login" element={
+                  <ErrorBoundary>
+                    <Login />
+                  </ErrorBoundary>
+                } />
+                <Route path="/register" element={
+                  <ErrorBoundary>
+                    <Register />
+                  </ErrorBoundary>
+                } />
+                <Route path="/marketplace" element={
+                  <ErrorBoundary>
+                    <Marketplace />
+                  </ErrorBoundary>
+                } />
+                <Route path="/my-listings" element={
+                  <ErrorBoundary>
+                    <ProtectedRoute>
+                      <MyListings />
+                    </ProtectedRoute>
+                  </ErrorBoundary>
+                } />
+                <Route path="/add" element={
+                  <ErrorBoundary>
+                    <ProtectedRoute>
+                      <BookForm />
+                    </ProtectedRoute>
+                  </ErrorBoundary>
               } />
               <Route path="/edit/:id" element={
                 <ErrorBoundary>
-                  <EditBook />
+                  <ProtectedRoute>
+                    <EditBook />
+                  </ProtectedRoute>
                 </ErrorBoundary>
               } />
             </Routes>
           </Box>
         </ErrorBoundary>
+      </AuthProvider>
       </Router>
     </ThemeProvider>
   );

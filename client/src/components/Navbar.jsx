@@ -1,12 +1,36 @@
-import { AppBar, Toolbar, Typography, Button, Box, IconButton, Tooltip } from '@mui/material';
-import { Link } from 'react-router-dom';
+import { AppBar, Toolbar, Typography, Button, Box, IconButton, Tooltip, Menu, MenuItem } from '@mui/material';
+import { Link, useNavigate } from 'react-router-dom';
+import { useState } from 'react';
 import { 
   LibraryBooks as LibraryBooksIcon,
   Brightness4 as DarkModeIcon,
-  Brightness7 as LightModeIcon
+  Brightness7 as LightModeIcon,
+  Store as StoreIcon,
+  Person as PersonIcon,
+  Logout as LogoutIcon,
+  Inventory as InventoryIcon
 } from '@mui/icons-material';
+import { useAuth } from '../context/AuthContext';
 
 function Navbar({ mode, onToggleTheme }) {
+  const { isAuthenticated, user, logout } = useAuth();
+  const navigate = useNavigate();
+  const [anchorEl, setAnchorEl] = useState(null);
+
+  const handleMenuOpen = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+  };
+
+  const handleLogout = () => {
+    logout();
+    handleMenuClose();
+    navigate('/');
+  };
+
   return (
     <AppBar position="static" elevation={0} sx={{ 
       backgroundColor: 'background.paper', 
@@ -37,7 +61,29 @@ function Navbar({ mode, onToggleTheme }) {
               Book Bazaar
             </Typography>
           </Box>
+          
           <Box sx={{ flexGrow: 1 }} />
+
+          {/* Marketplace Button */}
+          <Button 
+            startIcon={<StoreIcon />}
+            component={Link} 
+            to="/marketplace"
+            sx={{ mr: 2 }}
+          >
+            Marketplace
+          </Button>
+
+          {isAuthenticated && (
+            <Button 
+              startIcon={<InventoryIcon />}
+              component={Link} 
+              to="/my-listings"
+              sx={{ mr: 2 }}
+            >
+              My Listings
+            </Button>
+          )}
           
           {/* Theme Toggle Button */}
           <Tooltip title={mode === 'light' ? 'Switch to Dark Mode' : 'Switch to Light Mode'}>
@@ -50,21 +96,54 @@ function Navbar({ mode, onToggleTheme }) {
             </IconButton>
           </Tooltip>
 
-          <Button 
-            variant="contained" 
-            component={Link} 
-            to="/add"
-            sx={{ 
-              px: 3,
-              py: 1,
-              boxShadow: 2,
-              '&:hover': {
-                boxShadow: 4,
-              }
-            }}
-          >
-            Add Book
-          </Button>
+          {isAuthenticated ? (
+            <>
+              <Button 
+                variant="contained" 
+                component={Link} 
+                to="/add"
+                sx={{ mr: 2 }}
+              >
+                Add Book
+              </Button>
+              
+              <IconButton onClick={handleMenuOpen} color="primary">
+                <PersonIcon />
+              </IconButton>
+              <Menu
+                anchorEl={anchorEl}
+                open={Boolean(anchorEl)}
+                onClose={handleMenuClose}
+              >
+                <MenuItem disabled>
+                  <Typography variant="body2" color="text.secondary">
+                    {user?.username || user?.email}
+                  </Typography>
+                </MenuItem>
+                <MenuItem onClick={handleLogout}>
+                  <LogoutIcon sx={{ mr: 1 }} fontSize="small" />
+                  Logout
+                </MenuItem>
+              </Menu>
+            </>
+          ) : (
+            <>
+              <Button 
+                component={Link} 
+                to="/login"
+                sx={{ mr: 1 }}
+              >
+                Sign In
+              </Button>
+              <Button 
+                variant="contained" 
+                component={Link} 
+                to="/register"
+              >
+                Sign Up
+              </Button>
+            </>
+          )}
         </Toolbar>
       </Box>
     </AppBar>
