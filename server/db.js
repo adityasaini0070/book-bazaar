@@ -121,6 +121,169 @@ const createBooksTable = async () => {
         } catch (migrationErr) {
             console.log('Migration note:', migrationErr.message);
         }
+
+        // Create user profiles table (extended user info)
+        await pool.query(`
+            CREATE TABLE IF NOT EXISTS user_profiles (
+                user_id INTEGER PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+                bio TEXT,
+                avatar_url TEXT,
+                location VARCHAR(255),
+                favorite_genres TEXT[],
+                reading_goal INTEGER DEFAULT 0,
+                books_read INTEGER DEFAULT 0,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+        `);
+        console.log('User profiles table created successfully');
+
+        // Create messages table
+        await pool.query(`
+            CREATE TABLE IF NOT EXISTS messages (
+                id SERIAL PRIMARY KEY,
+                sender_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+                recipient_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+                listing_id INTEGER REFERENCES marketplace_listings(id) ON DELETE SET NULL,
+                subject VARCHAR(255),
+                message TEXT NOT NULL,
+                is_read BOOLEAN DEFAULT FALSE,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+        `);
+        console.log('Messages table created successfully');
+
+        // Create price negotiations table
+        await pool.query(`
+            CREATE TABLE IF NOT EXISTS negotiations (
+                id SERIAL PRIMARY KEY,
+                listing_id INTEGER REFERENCES marketplace_listings(id) ON DELETE CASCADE,
+                buyer_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+                seller_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+                original_price DECIMAL(10,2) NOT NULL,
+                offered_price DECIMAL(10,2) NOT NULL,
+                counter_price DECIMAL(10,2),
+                message TEXT,
+                status VARCHAR(20) DEFAULT 'pending' CHECK (status IN ('pending', 'accepted', 'rejected', 'countered')),
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+        `);
+        console.log('Negotiations table created successfully');
+
+        // Create book clubs table
+        await pool.query(`
+            CREATE TABLE IF NOT EXISTS book_clubs (
+                id SERIAL PRIMARY KEY,
+                name VARCHAR(255) NOT NULL,
+                description TEXT,
+                creator_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+                cover_image TEXT,
+                is_private BOOLEAN DEFAULT FALSE,
+                member_count INTEGER DEFAULT 1,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+        `);
+        console.log('Book clubs table created successfully');
+
+        // Create book club members table
+        await pool.query(`
+            CREATE TABLE IF NOT EXISTS book_club_members (
+                id SERIAL PRIMARY KEY,
+                club_id INTEGER REFERENCES book_clubs(id) ON DELETE CASCADE,
+                user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+                role VARCHAR(20) DEFAULT 'member' CHECK (role IN ('admin', 'moderator', 'member')),
+                joined_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                UNIQUE(club_id, user_id)
+            );
+        `);
+        console.log('Book club members table created successfully');
+
+        // Create book club books table (current reading)
+        await pool.query(`
+            CREATE TABLE IF NOT EXISTS book_club_books (
+                id SERIAL PRIMARY KEY,
+                club_id INTEGER REFERENCES book_clubs(id) ON DELETE CASCADE,
+                book_id INTEGER REFERENCES books(id) ON DELETE CASCADE,
+                start_date DATE,
+                end_date DATE,
+                is_current BOOLEAN DEFAULT TRUE,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+        `);
+        console.log('Book club books table created successfully');
+
+        // Create discussion forums table
+        await pool.query(`
+            CREATE TABLE IF NOT EXISTS forums (
+                id SERIAL PRIMARY KEY,
+                title VARCHAR(255) NOT NULL,
+                description TEXT,
+                book_id INTEGER REFERENCES books(id) ON DELETE CASCADE,
+                club_id INTEGER REFERENCES book_clubs(id) ON DELETE CASCADE,
+                creator_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+                is_pinned BOOLEAN DEFAULT FALSE,
+                view_count INTEGER DEFAULT 0,
+                reply_count INTEGER DEFAULT 0,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+        `);
+        console.log('Forums table created successfully');
+
+        // Create forum replies table
+        await pool.query(`
+            CREATE TABLE IF NOT EXISTS forum_replies (
+                id SERIAL PRIMARY KEY,
+                forum_id INTEGER REFERENCES forums(id) ON DELETE CASCADE,
+                user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+                parent_reply_id INTEGER REFERENCES forum_replies(id) ON DELETE CASCADE,
+                content TEXT NOT NULL,
+                likes INTEGER DEFAULT 0,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+        `);
+        console.log('Forum replies table created successfully');
+
+        // Create user follows table
+        await pool.query(`
+            CREATE TABLE IF NOT EXISTS user_follows (
+                id SERIAL PRIMARY KEY,
+                follower_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+                following_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                UNIQUE(follower_id, following_id),
+                CHECK (follower_id != following_id)
+            );
+        `);
+        console.log('User follows table created successfully');
+
+        // Create activity feed table
+        await pool.query(`
+            CREATE TABLE IF NOT EXISTS activity_feed (
+                id SERIAL PRIMARY KEY,
+                user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+                activity_type VARCHAR(50) NOT NULL,
+                activity_data JSONB,
+                is_public BOOLEAN DEFAULT TRUE,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+        `);
+        console.log('Activity feed table created successfully');
+
+        // Create password reset tokens table
+        await pool.query(`
+            CREATE TABLE IF NOT EXISTS password_reset_tokens (
+                id SERIAL PRIMARY KEY,
+                user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+                token VARCHAR(255) NOT NULL UNIQUE,
+                expires_at TIMESTAMP NOT NULL,
+                used BOOLEAN DEFAULT FALSE,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+        `);
+        console.log('Password reset tokens table created successfully');
         
         // Insert sample books if table is empty
         const result = await pool.query('SELECT COUNT(*) FROM books');

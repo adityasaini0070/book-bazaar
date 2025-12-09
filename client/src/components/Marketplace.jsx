@@ -24,7 +24,7 @@ import {
     ShoppingCart as CartIcon,
     FilterList as FilterIcon
 } from '@mui/icons-material';
-import { getMarketplaceListings, createTransaction, createExchangeRequest, getAllBooks } from '../api';
+import { getMarketplaceListings, createTransaction, createExchangeRequest, getAllBooks, createNegotiation } from '../api';
 import { useAuth } from '../context/AuthContext';
 
 function Marketplace() {
@@ -42,6 +42,10 @@ function Marketplace() {
     });
     const [exchangeDialog, setExchangeDialog] = useState({ open: false, listing: null });
     const [selectedBook, setSelectedBook] = useState('');
+    const [submitting, setSubmitting] = useState(false);
+    const [negotiateDialog, setNegotiateDialog] = useState({ open: false, listing: null });
+    const [offerPrice, setOfferPrice] = useState('');
+    const [negotiateMessage, setNegotiateMessage] = useState('');
 
     useEffect(() => {
         fetchListings();
@@ -104,7 +108,9 @@ function Marketplace() {
             setError('Please login to exchange books');
             return;
         }
+        console.log('Opening exchange dialog for listing:', listing);
         setExchangeDialog({ open: true, listing });
+        setSelectedBook(''); // Reset selected book
     };
 
     const handleExchangeSubmit = async () => {
@@ -113,6 +119,7 @@ function Marketplace() {
             return;
         }
 
+        setSubmitting(true);
         try {
             await createExchangeRequest({
                 listing_id: exchangeDialog.listing.id,
@@ -123,8 +130,55 @@ function Marketplace() {
             setSuccess('Exchange request sent successfully!');
             setExchangeDialog({ open: false, listing: null });
             setSelectedBook('');
+            setError('');
         } catch (err) {
+            console.error('Exchange request error:', err);
             setError(err.response?.data?.error || 'Failed to send exchange request');
+            // Close dialog even on error so user can see the error message
+            setExchangeDialog({ open: false, listing: null });
+            setSelectedBook('');
+        } finally {
+            setSubmitting(false);
+        }
+    };
+
+    const handleNegotiateClick = (listing) => {
+        if (!isAuthenticated) {
+            setError('Please login to negotiate prices');
+            return;
+        }
+        setNegotiateDialog({ open: true, listing });
+        setOfferPrice('');
+        setNegotiateMessage('');
+    };
+
+    const handleNegotiateSubmit = async () => {
+        if (!offerPrice || parseFloat(offerPrice) <= 0) {
+            setError('Please enter a valid offer price');
+            return;
+        }
+
+        setSubmitting(true);
+        try {
+            await createNegotiation({
+                listing_id: negotiateDialog.listing.id,
+                offered_price: parseFloat(offerPrice),
+                message: negotiateMessage
+            }, token);
+            
+            setSuccess('Price offer sent successfully!');
+            setNegotiateDialog({ open: false, listing: null });
+            setOfferPrice('');
+            setNegotiateMessage('');
+            setError('');
+        } catch (err) {
+            console.error('Negotiation error:', err);
+            setError(err.response?.data?.error || 'Failed to send offer');
+            setNegotiateDialog({ open: false, listing: null });
+            setOfferPrice('');
+            setNegotiateMessage('');
+        } finally {
+            setSubmitting(false);
         }
     };
 
@@ -263,17 +317,27 @@ function Marketplace() {
                                     </Typography>
                                 </CardContent>
 
-                                <CardActions>
+                                <CardActions sx={{ flexDirection: 'column', gap: 1, width: '100%', p: 2 }}>
                                     {listing.listing_type === 'sell' ? (
-                                        <Button
-                                            fullWidth
-                                            variant="contained"
-                                            startIcon={<CartIcon />}
-                                            onClick={() => handleBuyClick(listing.id)}
-                                            disabled={!isAuthenticated || listing.user_id === user?.id}
-                                        >
-                                            Buy Now
-                                        </Button>
+                                        <>
+                                            <Button
+                                                fullWidth
+                                                variant="contained"
+                                                startIcon={<CartIcon />}
+                                                onClick={() => handleBuyClick(listing.id)}
+                                                disabled={!isAuthenticated || listing.user_id === user?.id}
+                                            >
+                                                Buy Now
+                                            </Button>
+                                            <Button
+                                                fullWidth
+                                                variant="outlined"
+                                                onClick={() => handleNegotiateClick(listing)}
+                                                disabled={!isAuthenticated || listing.user_id === user?.id}
+                                            >
+                                                Make Offer
+                                            </Button>
+                                        </>
                                     ) : (
                                         <Button
                                             fullWidth
@@ -316,11 +380,71 @@ function Marketplace() {
                     </TextField>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={() => setExchangeDialog({ open: false, listing: null })}>
+                    <Button 
+                        onClick={() => {
+                            setExchangeDialog({ open: false, listing: null });
+                            setSelectedBook('');
+                        }}
+                        disabled={submitting}
+                    >
                         Cancel
                     </Button>
-                    <Button onClick={handleExchangeSubmit} variant="contained">
-                        Send Request
+                    <Button 
+                        onClick={handleExchangeSubmit} 
+                        variant="contained"
+                        disabled={submitting || !selectedBook}
+                    >
+                        {submitting ? 'Sending...' : 'Send Request'}
+                    </Button>
+                </DialogActions>
+            </Dialog>
+
+            {/* Negotiation Dialog */}
+            <Dialog open={negotiateDialog.open} onClose={() => setNegotiateDialog({ open: false, listing: null })} maxWidth="sm" fullWidth>
+                <DialogTitle>Make an Offer</DialogTitle>
+                <DialogContent>
+                    <Typography variant="body2" sx={{ mb: 2 }}>
+                        Book: <strong>{negotiateDialog.listing?.title}</strong>
+                    </Typography>
+                    <Typography variant="body2" sx={{ mb: 2 }}>
+                        Listed Price: <strong>${negotiateDialog.listing?.price ? parseFloat(negotiateDialog.listing.price).toFixed(2) : '0.00'}</strong>
+                    </Typography>
+                    <TextField
+                        fullWidth
+                        type="number"
+                        label="Your Offer Price"
+                        value={offerPrice}
+                        onChange={(e) => setOfferPrice(e.target.value)}
+                        sx={{ mt: 2, mb: 2 }}
+                        inputProps={{ min: 0, step: 0.01 }}
+                    />
+                    <TextField
+                        fullWidth
+                        label="Message (optional)"
+                        multiline
+                        rows={3}
+                        value={negotiateMessage}
+                        onChange={(e) => setNegotiateMessage(e.target.value)}
+                        placeholder="Add a message to the seller..."
+                    />
+                </DialogContent>
+                <DialogActions>
+                    <Button 
+                        onClick={() => {
+                            setNegotiateDialog({ open: false, listing: null });
+                            setOfferPrice('');
+                            setNegotiateMessage('');
+                        }}
+                        disabled={submitting}
+                    >
+                        Cancel
+                    </Button>
+                    <Button 
+                        onClick={handleNegotiateSubmit} 
+                        variant="contained"
+                        disabled={submitting || !offerPrice}
+                    >
+                        {submitting ? 'Sending...' : 'Send Offer'}
                     </Button>
                 </DialogActions>
             </Dialog>

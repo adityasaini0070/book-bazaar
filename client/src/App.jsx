@@ -8,6 +8,13 @@ import Login from './components/Login';
 import Register from './components/Register';
 import Marketplace from './components/Marketplace';
 import MyListings from './components/MyListings';
+import UserProfile from './components/UserProfile';
+import Messages from './components/Messages';
+import BookClubs from './components/BookClubs';
+import Forums from './components/Forums';
+import ActivityFeed from './components/ActivityFeed';
+import ForgotPassword from './components/ForgotPassword';
+import ResetPassword from './components/ResetPassword';
 import Navbar from './components/Navbar';
 import ErrorBoundary from './components/ErrorBoundary';
 import { AuthProvider, useAuth } from './context/AuthContext';
@@ -126,7 +133,9 @@ function App() {
               <Routes>
                 <Route path="/" element={
                   <ErrorBoundary>
-                    <BookList />
+                    <ProtectedRoute>
+                      <BookList />
+                    </ProtectedRoute>
                   </ErrorBoundary>
                 } />
                 <Route path="/login" element={
@@ -139,15 +148,83 @@ function App() {
                     <Register />
                   </ErrorBoundary>
                 } />
+                <Route path="/forgot-password" element={
+                  <ErrorBoundary>
+                    <ForgotPassword />
+                  </ErrorBoundary>
+                } />
+                <Route path="/reset-password/:token" element={
+                  <ErrorBoundary>
+                    <ResetPassword />
+                  </ErrorBoundary>
+                } />
                 <Route path="/marketplace" element={
                   <ErrorBoundary>
-                    <Marketplace />
+                    <ProtectedRoute>
+                      <Marketplace />
+                    </ProtectedRoute>
                   </ErrorBoundary>
                 } />
                 <Route path="/my-listings" element={
                   <ErrorBoundary>
                     <ProtectedRoute>
                       <MyListings />
+                    </ProtectedRoute>
+                  </ErrorBoundary>
+                } />
+                <Route path="/profile/:username" element={
+                  <ErrorBoundary>
+                    <ProtectedRoute>
+                      <UserProfile />
+                    </ProtectedRoute>
+                  </ErrorBoundary>
+                } />
+                <Route path="/messages" element={
+                  <ErrorBoundary>
+                    <ProtectedRoute>
+                      <Messages />
+                    </ProtectedRoute>
+                  </ErrorBoundary>
+                } />
+                <Route path="/messages/:userId" element={
+                  <ErrorBoundary>
+                    <ProtectedRoute>
+                      <Messages />
+                    </ProtectedRoute>
+                  </ErrorBoundary>
+                } />
+                <Route path="/book-clubs" element={
+                  <ErrorBoundary>
+                    <ProtectedRoute>
+                      <BookClubs />
+                    </ProtectedRoute>
+                  </ErrorBoundary>
+                } />
+                <Route path="/book-clubs/:clubId" element={
+                  <ErrorBoundary>
+                    <ProtectedRoute>
+                      <BookClubs />
+                    </ProtectedRoute>
+                  </ErrorBoundary>
+                } />
+                <Route path="/forums" element={
+                  <ErrorBoundary>
+                    <ProtectedRoute>
+                      <Forums />
+                    </ProtectedRoute>
+                  </ErrorBoundary>
+                } />
+                <Route path="/forums/:forumId" element={
+                  <ErrorBoundary>
+                    <ProtectedRoute>
+                      <Forums />
+                    </ProtectedRoute>
+                  </ErrorBoundary>
+                } />
+                <Route path="/activity" element={
+                  <ErrorBoundary>
+                    <ProtectedRoute>
+                      <ActivityFeed />
                     </ProtectedRoute>
                   </ErrorBoundary>
                 } />

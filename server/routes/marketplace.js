@@ -86,9 +86,12 @@ router.post('/listings', authenticateToken, async (req, res) => {
             return res.status(400).json({ error: 'Price is required for sell listings' });
         }
 
-        // Verify book exists and belongs to user
+        // Convert empty string to null for exchange listings
+        const finalPrice = (listing_type === 'exchange' || !price || price === '') ? null : price;
+
+        // Verify book exists and belongs to user (or has no owner)
         const bookCheck = await pool.query(
-            'SELECT * FROM books WHERE id = $1 AND user_id = $2',
+            'SELECT * FROM books WHERE id = $1 AND (user_id = $2 OR user_id IS NULL)',
             [book_id, req.user.id]
         );
 
@@ -96,12 +99,20 @@ router.post('/listings', authenticateToken, async (req, res) => {
             return res.status(404).json({ error: 'Book not found or does not belong to you' });
         }
 
+        // If book has no owner, assign it to the current user
+        if (bookCheck.rows[0].user_id === null) {
+            await pool.query(
+                'UPDATE books SET user_id = $1 WHERE id = $2',
+                [req.user.id, book_id]
+            );
+        }
+
         // Create listing
         const result = await pool.query(
             `INSERT INTO marketplace_listings (user_id, book_id, listing_type, price, condition, description)
              VALUES ($1, $2, $3, $4, $5, $6)
              RETURNING *`,
-            [req.user.id, book_id, listing_type, price, condition, description]
+            [req.user.id, book_id, listing_type, finalPrice, condition, description]
         );
 
         res.status(201).json({
@@ -188,14 +199,22 @@ router.post('/exchange-requests', authenticateToken, async (req, res) => {
             return res.status(404).json({ error: 'Exchange listing not found or not available' });
         }
 
-        // Verify offered book belongs to requester
+        // Verify offered book belongs to requester (or has no owner)
         const bookCheck = await pool.query(
-            'SELECT * FROM books WHERE id = $1 AND user_id = $2',
+            'SELECT * FROM books WHERE id = $1 AND (user_id = $2 OR user_id IS NULL)',
             [offered_book_id, req.user.id]
         );
 
         if (bookCheck.rows.length === 0) {
             return res.status(404).json({ error: 'Offered book not found or does not belong to you' });
+        }
+
+        // If book has no owner, assign it to the current user
+        if (bookCheck.rows[0].user_id === null) {
+            await pool.query(
+                'UPDATE books SET user_id = $1 WHERE id = $2',
+                [req.user.id, offered_book_id]
+            );
         }
 
         // Create exchange request

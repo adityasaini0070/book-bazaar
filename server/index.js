@@ -6,6 +6,12 @@ const cors = require('cors');
 const { pool, createBooksTable } = require('./db');
 const authRoutes = require('./routes/auth');
 const marketplaceRoutes = require('./routes/marketplace');
+const profileRoutes = require('./routes/profiles');
+const messageRoutes = require('./routes/messages');
+const negotiationRoutes = require('./routes/negotiations');
+const bookClubRoutes = require('./routes/bookClubs');
+const forumRoutes = require('./routes/forums');
+const activityRoutes = require('./routes/activity');
 
 const app = express();
 const port = process.env.PORT || 3001;
@@ -16,11 +22,15 @@ app.use(express.json());
 // Create books table on server start
 createBooksTable();
 
-// Auth routes
+// Register all routes
 app.use('/api/auth', authRoutes);
-
-// Marketplace routes
 app.use('/api/marketplace', marketplaceRoutes);
+app.use('/api/profiles', profileRoutes);
+app.use('/api/messages', messageRoutes);
+app.use('/api/negotiations', negotiationRoutes);
+app.use('/api/book-clubs', bookClubRoutes);
+app.use('/api/forums', forumRoutes);
+app.use('/api/activity', activityRoutes);
 
 // Get all books
 app.get('/api/books', async (req, res) => {
