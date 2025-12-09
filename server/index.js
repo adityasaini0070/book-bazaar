@@ -76,11 +76,26 @@ app.post('/api/books', async (req, res) => {
             return res.status(400).json({ error: "Title, author, and valid price are required" });
         }
 
+        // Extract user_id from JWT token if present
+        let userId = null;
+        const authHeader = req.headers['authorization'];
+        if (authHeader) {
+            const token = authHeader.split(' ')[1];
+            try {
+                const jwt = require('jsonwebtoken');
+                const { JWT_SECRET } = require('./middleware/auth');
+                const decoded = jwt.verify(token, JWT_SECRET);
+                userId = decoded.id;
+            } catch (err) {
+                // Token invalid or expired, continue without user_id
+            }
+        }
+
         const result = await pool.query(
-            `INSERT INTO books (title, author, price, isbn, genre, publication_year, publisher, pages, description) 
-             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *`,
+            `INSERT INTO books (title, author, price, isbn, genre, publication_year, publisher, pages, description, user_id) 
+             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING *`,
             [title, author, numPrice, isbn || null, genre || null, publicationYear || null, 
-             publisher || null, pages || null, description || null]
+             publisher || null, pages || null, description || null, userId]
         );
         
         res.status(201).json(result.rows[0]);

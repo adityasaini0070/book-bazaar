@@ -24,9 +24,11 @@ import {
   Search as SearchIcon
 } from '@mui/icons-material';
 import { createBook } from '../api';
+import { useAuth } from '../context/AuthContext';
 
 function BookForm() {
   const navigate = useNavigate();
+  const { token } = useAuth();
   const [formData, setFormData] = useState({
     title: '',
     author: '',
@@ -108,7 +110,7 @@ function BookForm() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await createBook(formData);
+      await createBook(formData, token);
       setSuccess(true);
       setTimeout(() => {
         navigate('/');

@@ -110,6 +110,17 @@ const createBooksTable = async () => {
             );
         `);
         console.log('Transactions table created successfully');
+
+        // Add user_id column to books table if it doesn't exist (migration)
+        try {
+            await pool.query(`
+                ALTER TABLE books 
+                ADD COLUMN IF NOT EXISTS user_id INTEGER REFERENCES users(id) ON DELETE CASCADE;
+            `);
+            console.log('Books table migration completed (user_id column)');
+        } catch (migrationErr) {
+            console.log('Migration note:', migrationErr.message);
+        }
         
         // Insert sample books if table is empty
         const result = await pool.query('SELECT COUNT(*) FROM books');
