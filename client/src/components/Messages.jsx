@@ -75,9 +75,25 @@ function Messages() {
             const response = await getConversation(otherUserId, token);
             setMessages(response.data);
             
-            // Find conversation details
-            const conv = conversations.find(c => c.other_user_id === parseInt(otherUserId));
-            setSelectedConversation(conv || { other_user_id: otherUserId });
+            // Find conversation details from existing conversations
+            let conv = conversations.find(c => c.other_user_id === parseInt(otherUserId));
+            
+            // If not found in conversations, try to get details from messages
+            if (!conv && response.data.length > 0) {
+                const firstMsg = response.data[0];
+                const isRecipient = firstMsg.recipient_id === parseInt(otherUserId);
+                conv = {
+                    other_user_id: parseInt(otherUserId),
+                    other_username: isRecipient ? firstMsg.recipient_username : firstMsg.sender_username,
+                    other_full_name: null
+                };
+            }
+            
+            setSelectedConversation(conv || { 
+                other_user_id: parseInt(otherUserId),
+                other_username: 'User',
+                other_full_name: null
+            });
             
             // Refresh unread count after reading messages
             fetchUnreadCount();

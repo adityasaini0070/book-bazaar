@@ -14,7 +14,7 @@ import {
     ListItemText
 } from '@mui/material';
 import {
-    Activity as ActivityIcon,
+    Notifications as ActivityIcon,
     Book as BookIcon,
     Store as StoreIcon,
     Groups as GroupsIcon,
