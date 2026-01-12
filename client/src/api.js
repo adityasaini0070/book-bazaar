@@ -118,8 +118,8 @@ export const getMyOffers = (token) => axios.get(`${API_URL}/negotiations/my-offe
 export const getReceivedNegotiations = (token) => axios.get(`${API_URL}/negotiations/received`, {
     headers: { Authorization: `Bearer ${token}` }
 });
-export const counterOffer = (id, counterPrice, message, token) => axios.put(`${API_URL}/negotiations/${id}/counter`, 
-    { counter_price: counterPrice, message }, 
+export const counterOffer = (id, counterPrice, message, token) => axios.put(`${API_URL}/negotiations/${id}/counter`,
+    { counter_price: counterPrice, message },
     { headers: { Authorization: `Bearer ${token}` } }
 );
 export const acceptNegotiation = (id, token) => axios.put(`${API_URL}/negotiations/${id}/accept`, {}, {
